@@ -10,12 +10,15 @@ QUEUE is a repair shop management platform with a public REST API that lets you 
   <Card title="Introduction" icon="book-open" href="/introduction">
     Learn what the QUEUE API can do and how it's structured.
   </Card>
+
   <Card title="Authentication" icon="key" href="/authentication">
     Generate an API token and start making authenticated requests.
   </Card>
+
   <Card title="Quickstart" icon="rocket" href="/quickstart">
     Make your first API call in under five minutes.
   </Card>
+
   <Card title="API Reference" icon="code" href="/api-reference/repairs/create-repair">
     Explore all available endpoints with full request and response details.
   </Card>
@@ -29,12 +32,13 @@ QUEUE is a repair shop management platform with a public REST API that lets you 
   </Step>
   <Step title="Authenticate your requests">
     Pass your token in the `Authorization` header on every request:
-    ```
+
+    ```text
     Authorization: Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     ```
   </Step>
   <Step title="Call the API">
-    Use the base URL `https://<your-queue-domain>/api/v1` and send JSON requests. Every response follows a consistent `{ ok, data, meta }` envelope.
+    Use the base URL `https://queue.pt/api/v1` and send JSON requests. Every response follows a consistent `{ ok, data, meta }` envelope.
   </Step>
   <Step title="Handle responses">
     Check the `ok` field to confirm success. On errors, read `error.code` and `error.details` for actionable feedback.
@@ -44,7 +48,7 @@ QUEUE is a repair shop management platform with a public REST API that lets you 
 ## Available Endpoints
 
 | Endpoint | Method | Scope Required |
-|----------|--------|---------------|
+| --- | --- | --- |
 | `/repairs` | `POST` | `repairs:write` |
 | `/repairs` | `GET` | `repairs:read` |
 | `/procedures` | `GET` | `procedures:read` |

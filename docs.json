@@ -80,5 +80,8 @@
   },
   "footer": {
     "socials": {}
+  },
+  "interaction": {
+    "drilldown": false
   }
 }
