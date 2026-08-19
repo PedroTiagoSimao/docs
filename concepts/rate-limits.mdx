@@ -1,0 +1,92 @@
+---
+title: "QUEUE API Rate Limits and Request Throttling"
+sidebarTitle: "Rate Limits"
+description: "The QUEUE API allows 60 requests per minute per token. Learn how rate limits work, how to detect them, and how to handle 429 responses."
+---
+
+The QUEUE API enforces rate limits to ensure fair usage and platform stability. Each API token is independently limited to **60 requests per minute**. Requests that exceed this limit are rejected until the window resets.
+
+## Limits
+
+| Scope | Limit |
+|---|---|
+| Per token, per minute | 60 requests |
+
+When you exceed the limit, QUEUE responds with HTTP `429 Too Many Requests` and a `Retry-After` header indicating the number of seconds you must wait before making another request.
+
+## Detecting Rate Limit Errors
+
+A rate-limited response looks like this:
+
+```bash
+# Response headers when rate limited
+HTTP/1.1 429 Too Many Requests
+Retry-After: 15
+Content-Type: application/json
+
+{
+  "ok": false,
+  "error": {
+    "code": "rate_limited",
+    "message": "Too many requests. Please wait 15 seconds before retrying."
+  }
+}
+```
+
+The `Retry-After` value is always in **seconds**. In the example above, you must wait 15 seconds before the next request will be accepted.
+
+## Handling 429 in Your Integration
+
+<Warning>
+  Do not immediately retry on a `429` response — this will not succeed and may compound the problem. Always wait for the duration specified in the `Retry-After` header before retrying.
+</Warning>
+
+Follow these steps when your integration receives a `429`:
+
+<Steps>
+  <Step title="Read the Retry-After header">
+    Extract the integer value from the `Retry-After` response header. This is the minimum number of seconds you must wait.
+  </Step>
+  <Step title="Pause execution">
+    Sleep or delay your retry loop for at least the `Retry-After` duration before making another request to the API.
+  </Step>
+  <Step title="Retry the request">
+    After the wait period, retry the original request. If it succeeds, resume normal operation.
+  </Step>
+  <Step title="Apply exponential backoff for repeated failures">
+    If you continue receiving `429` responses after waiting, apply exponential backoff — double your wait time on each successive failure — to avoid hammering the limit as it resets.
+  </Step>
+</Steps>
+
+A minimal example in JavaScript:
+
+```javascript
+async function fetchWithRetry(url, options, maxRetries = 3) {
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    const res = await fetch(url, options);
+
+    if (res.status !== 429) return res; // success or non-rate-limit error
+
+    const retryAfter = parseInt(res.headers.get("Retry-After") || "10", 10);
+    const backoff = retryAfter * Math.pow(2, attempt); // exponential backoff
+    console.warn(`Rate limited. Retrying in ${backoff}s...`);
+    await new Promise((resolve) => setTimeout(resolve, backoff * 1000));
+  }
+
+  throw new Error("Max retries exceeded after repeated 429 responses.");
+}
+```
+
+## Tips for Staying Under the Limit
+
+Avoiding rate limits is mostly a matter of fetching efficiently. A few habits will take you a long way:
+
+- **Use `per_page=200`** when paginating large lists. Fetching 200 records in one request instead of 50 reduces the number of requests needed to walk a full dataset by 4×.
+- **Filter with `repair_id`** to fetch targeted subsets rather than scanning full resource lists and filtering client-side. Precise queries mean fewer total requests.
+- **Cache read responses** that don't need real-time freshness. Repair details, customer records, and static lookup data (statuses, tags) are good candidates for short-lived caches.
+- **Batch writes where possible.** If your workflow creates many records in sequence, check whether your use case can be restructured to reduce write frequency.
+- **Contact QUEUE support** if your integration legitimately requires a higher rate limit. We can work with you on appropriate limits for high-volume use cases.
+
+<Note>
+  Rate limits apply **per token**. If you have multiple independent integrations, issuing each one its own API token gives each integration its own independent 60 req/min budget.
+</Note>

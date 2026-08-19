@@ -1,0 +1,128 @@
+---
+title: "Paginate, Filter, and Sort QUEUE API List Responses"
+sidebarTitle: "Pagination & Filtering"
+description: "All QUEUE list endpoints share consistent pagination, filtering, and sorting query parameters. Learn how to navigate large datasets efficiently."
+---
+
+Every `GET` list endpoint in the QUEUE API supports the same set of pagination, filtering, and sorting query parameters. You can combine these parameters freely on any list endpoint to retrieve exactly the records you need.
+
+## Pagination
+
+Control how many records are returned per page and which page you're on using the following parameters:
+
+| Parameter | Default | Range | Notes |
+|---|---|---|---|
+| `page` | `1` | 1–10000 | 1-based page number. |
+| `per_page` (alias: `limit`) | `50` | 1–200 | Maximum number of records returned per page. |
+
+```bash
+# Fetch the second page of repairs, 25 records at a time
+curl 'https://your-domain.com/api/v1/repairs?page=2&per_page=25' \
+  -H 'Authorization: Bearer queue_xxxx'
+```
+
+To iterate through all pages, use `meta.total_pages` from the first response to determine when to stop:
+
+```javascript
+let page = 1;
+let allRepairs = [];
+
+do {
+  const res = await fetch(
+    `https://your-domain.com/api/v1/repairs?page=${page}&per_page=200`,
+    { headers: { Authorization: "Bearer queue_xxxx" } }
+  );
+  const body = await res.json();
+
+  allRepairs = allRepairs.concat(body.data);
+  page++;
+} while (page <= body.meta.total_pages); // stop when we've fetched every page
+```
+
+## Filtering
+
+Narrow list results with these filter parameters. Multiple filters can be combined in a single request.
+
+| Parameter | Type | Applies To | Notes |
+|---|---|---|---|
+| `repair_id` | uuid | procedures, quotes, attachments, communications | Returns only records belonging to the specified repair. |
+| `customer_id` | uuid | repairs | Returns only repairs belonging to the specified customer. |
+| `procedure_id` | uuid | attachments | Returns only attachments linked to the specified procedure. |
+| `status` | uuid / slug / name | repairs, quotes | Matches against your company's statuses table. Accepts the status UUID, its slug, or its display name. |
+| `created_after` | ISO-8601 | all | Returns records with `created_at` greater than or equal to the given timestamp. |
+| `created_before` | ISO-8601 | all | Returns records with `created_at` less than or equal to the given timestamp. |
+| `scheduled_after` | ISO-8601 | repairs | Returns repairs with `scheduled_at` greater than or equal to the given timestamp. |
+| `scheduled_before` | ISO-8601 | repairs | Returns repairs with `scheduled_at` less than or equal to the given timestamp. |
+| `q` (alias: `search`) | string | repairs, procedures, attachments, communications | Case-insensitive full-text search. See below for per-resource search fields. |
+
+### Text search fields (`q`)
+
+The `q` parameter searches different fields depending on the resource:
+
+| Resource | Fields searched |
+|---|---|
+| repairs | `device`, `service`, `serial`, `description`, customer `full_name`, `email`, `phone` |
+| procedures | `description` |
+| attachments | `file_name`, `description` |
+| communications | `subject`, `description` (body), `from_email`, `to_email` |
+
+<Tip>
+  Use `repair_id` to scope results to a single repair rather than relying on text search for precision. `repair_id` is an exact match filter and will always outperform a broad `q` search when you already know the repair.
+</Tip>
+
+## Sorting
+
+Control the order of results with these parameters:
+
+| Parameter | Default | Notes |
+|---|---|---|
+| `sort_by` (alias: `sortBy`) | `created_at` | The field to sort by. Allowed values differ per endpoint — invalid values silently fall back to `created_at`. |
+| `sort_dir` (alias: `sortDir`) | `desc` | `asc` for oldest/lowest first, `desc` for newest/highest first. Any value other than `asc` defaults to `desc`. |
+
+**Allowed `sort_by` values per endpoint:**
+
+| Endpoint | Allowed values |
+|---|---|
+| repairs | `created_at`, `scheduled_at`, `repair_number`, `status` |
+| procedures | `created_at`, `id` |
+| quotes | `created_at`, `quote_number`, `status` |
+| attachments | `created_at`, `id` |
+| communications | `created_at`, `id` |
+
+## Examples
+
+**Filter repairs by date range:**
+
+```bash
+curl 'https://your-domain.com/api/v1/repairs?created_after=2024-01-01T00:00:00Z&created_before=2024-03-31T23:59:59Z' \
+  -H 'Authorization: Bearer queue_xxxx'
+```
+
+**Filter repairs by status:**
+
+```bash
+# Using a status slug
+curl 'https://your-domain.com/api/v1/repairs?status=in-progress' \
+  -H 'Authorization: Bearer queue_xxxx'
+```
+
+**Search procedures by description:**
+
+```bash
+curl 'https://your-domain.com/api/v1/procedures?q=screen+replacement&repair_id=rep_abc123' \
+  -H 'Authorization: Bearer queue_xxxx'
+```
+
+**Combined pagination and sorting — latest repairs, 100 per page:**
+
+```bash
+curl 'https://your-domain.com/api/v1/repairs?page=1&per_page=100&sort_by=created_at&sort_dir=desc' \
+  -H 'Authorization: Bearer queue_xxxx'
+```
+
+**Fetch all communications for a specific repair:**
+
+```bash
+curl 'https://your-domain.com/api/v1/communications?repair_id=rep_abc123&sort_by=created_at&sort_dir=asc' \
+  -H 'Authorization: Bearer queue_xxxx'
+```

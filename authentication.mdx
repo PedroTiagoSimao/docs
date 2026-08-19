@@ -1,0 +1,82 @@
+---
+title: "Authenticate with the QUEUE API Using Bearer Tokens"
+sidebarTitle: "Authentication"
+description: "Learn how to generate a QUEUE API token, authenticate requests with Bearer auth, manage scopes, and revoke tokens when needed."
+---
+
+QUEUE uses API tokens for authentication. Every request must include a Bearer token in the `Authorization` header. Tokens are **company-scoped** — they can only access data belonging to the company that generated them — and **scope-restricted**, meaning each token controls exactly which endpoints the bearer is permitted to call. There are no user-level tokens; tokens belong to your company account.
+
+## Generating an API Token
+
+<Steps>
+  <Step title="Log in as a company admin">
+    Sign in to your QUEUE dashboard using an account with company administrator privileges. Only admins can create and revoke API tokens.
+  </Step>
+  <Step title="Open the API Keys section">
+    Click your **Profile** (Perfil) in the top-right corner of the dashboard, then scroll to the **API Keys** (Chaves de API / API Keys) section.
+  </Step>
+  <Step title="Create a new key">
+    Click **Criar chave de API**. Enter a descriptive name that identifies the integration this token will be used for — for example, `"WooCommerce Integration"` or `"CRM Sync"`. Confirm to generate the token.
+  </Step>
+  <Step title="Copy and store the token immediately">
+    Your new token is displayed **only once**. Copy it now and store it securely in a password manager, secrets vault, or environment variable. If you navigate away without copying it, the token cannot be recovered — you will need to revoke it and generate a new one.
+  </Step>
+</Steps>
+
+<Warning>
+  **Your token will not be shown again.** Treat it like a password. Store it in a secrets manager or environment variable immediately after generation. If you lose a token, revoke it and create a replacement.
+</Warning>
+
+## Authenticating Requests
+
+Include your token in the `Authorization` header of every API request using the `Bearer` scheme:
+
+```
+Authorization: Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+**Example — curl**
+
+```bash
+curl -X GET 'https://your-domain.com/api/v1/repairs' \
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+```
+
+All QUEUE API tokens are prefixed with `queue_` so they can be identified if accidentally exposed in logs or source code.
+
+## Token Scopes
+
+Scopes determine which API endpoints a token is authorized to call. When you create a token, you can restrict it to only the scopes your integration actually needs.
+
+| Scope | Permitted endpoint |
+|---|---|
+| `repairs:read` | `GET /repairs` |
+| `repairs:write` | `POST /repairs` |
+| `procedures:read` | `GET /procedures` |
+| `quotes:read` | `GET /quotes` |
+| `attachments:read` | `GET /attachments` |
+| `communications:read` | `GET /communications` |
+
+<Note>
+  Newly created tokens are granted **all six scopes** by default. If a token does not have the scope required for the endpoint you are calling, the API returns `403 Forbidden`. Requests with a missing or invalid token return `401 Unauthorized`.
+</Note>
+
+## Best Practices
+
+- **Never commit tokens to source code.** Use environment variables or a dedicated secret manager (e.g., AWS Secrets Manager, HashiCorp Vault, Doppler) to inject tokens at runtime.
+- **Revoke compromised tokens immediately.** If a token may have been exposed — in logs, a public repository, or a third-party service — revoke it and issue a replacement right away.
+- **Apply the principle of least privilege.** Only enable the scopes your integration actually requires. A read-only data-sync job does not need `repairs:write`.
+- **Rotate tokens periodically** as part of your security hygiene, especially for long-lived integrations.
+- **Use one token per integration.** This makes it easy to revoke a single integration's access without affecting others.
+
+## Revoking a Token
+
+To revoke a token, go to **Profile** (Perfil) → **API Keys** (Chaves de API / API Keys) in your QUEUE dashboard and click the revoke action next to the token you want to invalidate. Revocation is immediate — any subsequent request using that token will receive a `401 Unauthorized` response.
+
+## Error Responses
+
+| HTTP status | Meaning |
+|---|---|
+| `401 Unauthorized` | The `Authorization` header is missing, the token is malformed, or the token has been revoked. Check that you are including the header and that the token is still active. |
+| `403 Forbidden` | The token is valid but lacks the required scope for the endpoint, or your company's subscription does not include REST API access. Review the token's scopes or your plan. |

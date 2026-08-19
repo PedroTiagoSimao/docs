@@ -1,0 +1,280 @@
+---
+title: "GET /repairs — List and Search Repair Orders"
+sidebarTitle: "GET /repairs"
+description: "GET /api/v1/repairs — List all repair orders for your company. Supports pagination, filtering by status or customer, date ranges, and full-text search."
+---
+
+Use this endpoint to retrieve a paginated list of repair orders for your company. You can filter by status, customer, date range, or search across device, serial, and customer details. Requires the `repairs:read` scope.
+
+```
+GET https://<your-queue-domain>/api/v1/repairs
+```
+
+## Required Headers
+
+| Header          | Value                              |
+| --------------- | ---------------------------------- |
+| `Authorization` | `Bearer queue_<your_token>`        |
+
+## Query Parameters
+
+<ParamField query="page" type="integer" default="1">
+  Page number to retrieve. Accepted range: `1`–`10000`.
+</ParamField>
+
+<ParamField query="per_page" type="integer" default="50">
+  Number of records to return per page. Accepted range: `1`–`200`. Also accepted as `limit`.
+</ParamField>
+
+<ParamField query="customer_id" type="uuid" required={false}>
+  Filter results to repair orders belonging to a specific customer UUID.
+</ParamField>
+
+<ParamField query="status" type="string" required={false}>
+  Filter by repair status. Accepts a status UUID, slug, or display name (e.g. `"em-reparacao"` or `"Em Reparação"`).
+</ParamField>
+
+<ParamField query="created_after" type="ISO-8601" required={false}>
+  Return only repairs created on or after this datetime (e.g. `"2026-09-01T00:00:00Z"`).
+</ParamField>
+
+<ParamField query="created_before" type="ISO-8601" required={false}>
+  Return only repairs created on or before this datetime (e.g. `"2026-09-30T23:59:59Z"`).
+</ParamField>
+
+<ParamField query="scheduled_after" type="ISO-8601" required={false}>
+  Return only repairs with a `scheduled_at` on or after this datetime.
+</ParamField>
+
+<ParamField query="scheduled_before" type="ISO-8601" required={false}>
+  Return only repairs with a `scheduled_at` on or before this datetime.
+</ParamField>
+
+<ParamField query="q" type="string" required={false}>
+  Full-text search query. Searches across `device`, `service`, `serial`, `description`, and customer `name`, `email`, and `phone`. Also accepted as `search`.
+</ParamField>
+
+<ParamField query="sort_by" type="string" default="created_at">
+  Field to sort results by. Allowed values: `created_at`, `scheduled_at`, `repair_number`, `status`.
+</ParamField>
+
+<ParamField query="sort_dir" type="string" default="desc">
+  Sort direction. Accepted values: `asc`, `desc`.
+</ParamField>
+
+## Example Requests
+
+```bash
+# First page of 10 repairs
+curl 'https://your-domain.com/api/v1/repairs?page=1&per_page=10' \
+  -H 'Authorization: Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxx'
+
+# Filter by status slug
+curl 'https://your-domain.com/api/v1/repairs?status=em-reparacao' \
+  -H 'Authorization: Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxx'
+
+# Search by customer name or device
+curl 'https://your-domain.com/api/v1/repairs?q=João' \
+  -H 'Authorization: Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxx'
+
+# Repairs scheduled in September 2026
+curl 'https://your-domain.com/api/v1/repairs?scheduled_after=2026-09-01T00:00:00Z&scheduled_before=2026-09-30T23:59:59Z' \
+  -H 'Authorization: Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxx'
+```
+
+## Response — 200 OK
+
+<ResponseField name="ok" type="boolean">
+  Always `true` on a successful response.
+</ResponseField>
+
+<ResponseField name="data" type="array">
+  Array of repair order objects matching your query.
+
+  <Expandable title="repair object fields">
+    <ResponseField name="data[].id" type="string">
+      UUID of the repair order.
+    </ResponseField>
+
+    <ResponseField name="data[].company_id" type="string">
+      UUID of your QUEUE company.
+    </ResponseField>
+
+    <ResponseField name="data[].repair_number" type="integer">
+      Sequential repair number, unique within your company.
+    </ResponseField>
+
+    <ResponseField name="data[].repair_number_formatted" type="string">
+      Zero-padded, human-readable display string (e.g. `"R-0042"`).
+    </ResponseField>
+
+    <ResponseField name="data[].created_at" type="string">
+      ISO-8601 timestamp of when the repair was created.
+    </ResponseField>
+
+    <ResponseField name="data[].customer_id" type="string">
+      UUID of the associated customer.
+    </ResponseField>
+
+    <ResponseField name="data[].customer" type="object">
+      Embedded customer snapshot at time of retrieval.
+
+      <Expandable title="customer fields">
+        <ResponseField name="data[].customer.id" type="string">
+          Customer UUID.
+        </ResponseField>
+
+        <ResponseField name="data[].customer.full_name" type="string">
+          Full name of the customer.
+        </ResponseField>
+
+        <ResponseField name="data[].customer.email" type="string | null">
+          Customer email address, or `null` if not on record.
+        </ResponseField>
+
+        <ResponseField name="data[].customer.phone" type="string | null">
+          Customer phone number, or `null` if not on record.
+        </ResponseField>
+
+        <ResponseField name="data[].customer.nif" type="string | null">
+          Portuguese tax ID, or `null` if not on record.
+        </ResponseField>
+
+        <ResponseField name="data[].customer.address" type="string | null">
+          Street address, or `null` if not on record.
+        </ResponseField>
+
+        <ResponseField name="data[].customer.cp" type="string | null">
+          Postal code, or `null` if not on record.
+        </ResponseField>
+
+        <ResponseField name="data[].customer.city" type="string | null">
+          City name, or `null` if not on record.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+
+    <ResponseField name="data[].device" type="string">
+      Device or equipment name.
+    </ResponseField>
+
+    <ResponseField name="data[].service" type="string">
+      Service description.
+    </ResponseField>
+
+    <ResponseField name="data[].serial" type="string | null">
+      Serial number or IMEI, or `null` if not recorded.
+    </ResponseField>
+
+    <ResponseField name="data[].password" type="string | null">
+      Device passcode, or `null` if not recorded.
+    </ResponseField>
+
+    <ResponseField name="data[].description" type="string | null">
+      Issue description, or `null` if not recorded.
+    </ResponseField>
+
+    <ResponseField name="data[].accessories" type="string | null">
+      Accessories list, or `null` if not recorded.
+    </ResponseField>
+
+    <ResponseField name="data[].status" type="string">
+      UUID of the current repair status.
+    </ResponseField>
+
+    <ResponseField name="data[].warranty_status" type="string | null">
+      UUID of the warranty status, or `null` if not set.
+    </ResponseField>
+
+    <ResponseField name="data[].scheduled_at" type="string | null">
+      ISO-8601 scheduled datetime, or `null` if not set.
+    </ResponseField>
+
+    <ResponseField name="data[].invoice" type="string | null">
+      Invoice reference or identifier, or `null` if not issued.
+    </ResponseField>
+
+    <ResponseField name="data[].delivery_date" type="string | null">
+      ISO-8601 delivery date, or `null` if not recorded.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="meta" type="object">
+  Pagination metadata for the current response.
+
+  <Expandable title="meta fields">
+    <ResponseField name="meta.page" type="integer">
+      The current page number.
+    </ResponseField>
+
+    <ResponseField name="meta.per_page" type="integer">
+      Number of records returned per page.
+    </ResponseField>
+
+    <ResponseField name="meta.total" type="integer">
+      Total number of repair orders matching the current filters.
+    </ResponseField>
+
+    <ResponseField name="meta.total_pages" type="integer">
+      Total number of pages available given `total` and `per_page`.
+    </ResponseField>
+
+    <ResponseField name="meta.sort_by" type="string">
+      The field results are sorted by.
+    </ResponseField>
+
+    <ResponseField name="meta.sort_dir" type="string">
+      The sort direction applied (`asc` or `desc`).
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+```json
+{
+  "ok": true,
+  "data": [
+    {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "company_id": "uuid",
+      "repair_number": 123,
+      "repair_number_formatted": "R-0123",
+      "created_at": "2026-08-19T12:00:00.000Z",
+      "customer_id": "uuid",
+      "customer": {
+        "id": "uuid",
+        "full_name": "João Silva",
+        "email": "joao@example.com",
+        "phone": "+351910000000",
+        "nif": null,
+        "address": null,
+        "cp": null,
+        "city": null
+      },
+      "device": "Samsung Galaxy S23",
+      "service": "Troca de bateria",
+      "serial": null,
+      "password": null,
+      "description": "Bateria não aguenta 1 dia.",
+      "accessories": null,
+      "status": "uuid",
+      "warranty_status": null,
+      "scheduled_at": null,
+      "invoice": null,
+      "delivery_date": null
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "per_page": 50,
+    "total": 1,
+    "total_pages": 1,
+    "sort_by": "created_at",
+    "sort_dir": "desc"
+  }
+}
+```
+
+<Note>
+  The `status` and `warranty_status` fields return a **UUID**. To resolve these to human-readable names, refer to your QUEUE dashboard's status settings, or use the upcoming `GET /statuses` endpoint for a full list of configured statuses and their slugs.
+</Note>

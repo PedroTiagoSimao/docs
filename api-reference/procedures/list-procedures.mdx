@@ -1,0 +1,226 @@
+---
+title: "GET /procedures — List Repair Procedure Log Entries"
+sidebarTitle: "GET /procedures"
+description: "GET /api/v1/procedures — List procedure log entries across your repairs. Filter by repair ID, date range, or search by description. Requires procedures:read scope."
+---
+
+The procedures endpoint returns the activity log entries for your repair orders — every action, note, and update recorded by technicians, including auto-generated entries created by the API. Requires the `procedures:read` scope.
+
+```
+GET https://<your-queue-domain>/api/v1/procedures
+```
+
+## Required Headers
+
+<ParamField header="Authorization" type="string" required>
+  Your API token in Bearer format.
+
+  ```
+  Authorization: Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxx
+  ```
+</ParamField>
+
+## Query Parameters
+
+<ParamField query="page" type="integer" default="1">
+  Page number for paginated results.
+</ParamField>
+
+<ParamField query="per_page" type="integer" default="50">
+  Number of results per page. Maximum: `200`. Alias: `limit`.
+</ParamField>
+
+<ParamField query="repair_id" type="uuid">
+  Filter procedures by a specific repair's UUID. Highly recommended when fetching procedures for a single repair.
+</ParamField>
+
+<ParamField query="created_after" type="string">
+  Return only procedures created after this timestamp. Must be a valid ISO-8601 datetime string (e.g. `2026-08-01T00:00:00.000Z`).
+</ParamField>
+
+<ParamField query="created_before" type="string">
+  Return only procedures created before this timestamp. Must be a valid ISO-8601 datetime string (e.g. `2026-08-31T23:59:59.999Z`).
+</ParamField>
+
+<ParamField query="q" type="string">
+  Search within procedure description text. Alias: `search`.
+</ParamField>
+
+<ParamField query="sort_by" type="string" default="created_at">
+  Field to sort results by. Allowed values: `created_at`, `id`.
+</ParamField>
+
+<ParamField query="sort_dir" type="string" default="desc">
+  Sort direction. Allowed values: `asc`, `desc`.
+</ParamField>
+
+<Tip>
+  Always filter by `repair_id` when retrieving procedures for a specific repair. It's faster and more precise than a text search.
+</Tip>
+
+## Example Requests
+
+```bash
+# All procedures for a specific repair
+curl 'https://your-domain.com/api/v1/procedures?repair_id=a1b2c3d4-e5f6-7890-abcd-ef1234567890' \
+  -H 'Authorization: Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxx'
+
+# Search procedure descriptions
+curl 'https://your-domain.com/api/v1/procedures?q=screen+replaced' \
+  -H 'Authorization: Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxx'
+```
+
+## Response — 200 OK
+
+<ResponseField name="ok" type="boolean">
+  Indicates whether the request was successful. Always `true` for `200 OK` responses.
+</ResponseField>
+
+<ResponseField name="data" type="array">
+  Array of procedure log entry objects.
+
+  <Expandable title="Procedure object fields">
+    <ResponseField name="id" type="string">
+      UUID of the procedure log entry.
+    </ResponseField>
+
+    <ResponseField name="company_id" type="string">
+      UUID of the company this procedure belongs to.
+    </ResponseField>
+
+    <ResponseField name="repair_id" type="string">
+      UUID of the parent repair this procedure is logged against.
+    </ResponseField>
+
+    <ResponseField name="repair" type="object">
+      Summary of the parent repair.
+
+      <Expandable title="Repair fields">
+        <ResponseField name="id" type="string">
+          UUID of the repair.
+        </ResponseField>
+
+        <ResponseField name="repair_number" type="integer">
+          Sequential repair number.
+        </ResponseField>
+
+        <ResponseField name="repair_number_formatted" type="string">
+          Zero-padded display string (e.g. `R-0123`).
+        </ResponseField>
+
+        <ResponseField name="device" type="string">
+          Device name associated with the repair (e.g. `iPhone 13 Pro`).
+        </ResponseField>
+
+        <ResponseField name="customer_id" type="string">
+          UUID of the customer linked to this repair.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+
+    <ResponseField name="user_id" type="string | null">
+      UUID of the technician who created this procedure. `null` for auto-generated entries.
+    </ResponseField>
+
+    <ResponseField name="created_by" type="object | null">
+      Technician who created this procedure. `null` for auto-generated entries.
+
+      <Expandable title="created_by fields">
+        <ResponseField name="id" type="string">
+          UUID of the technician.
+        </ResponseField>
+
+        <ResponseField name="full_name" type="string">
+          Full name of the technician.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+
+    <ResponseField name="description" type="string">
+      The log entry text recorded for this procedure.
+    </ResponseField>
+
+    <ResponseField name="edited" type="boolean">
+      Whether this entry has been edited after its initial creation.
+    </ResponseField>
+
+    <ResponseField name="client_warned" type="boolean">
+      Whether the customer was notified about this procedure entry.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="string">
+      ISO-8601 timestamp of when this procedure was created.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="meta" type="object">
+  Pagination metadata for the response.
+
+  <Expandable title="Meta fields">
+    <ResponseField name="page" type="integer">
+      Current page number.
+    </ResponseField>
+
+    <ResponseField name="per_page" type="integer">
+      Number of results returned per page.
+    </ResponseField>
+
+    <ResponseField name="total" type="integer">
+      Total number of procedures matching the query.
+    </ResponseField>
+
+    <ResponseField name="total_pages" type="integer">
+      Total number of pages available.
+    </ResponseField>
+
+    <ResponseField name="sort_by" type="string">
+      The field results are sorted by.
+    </ResponseField>
+
+    <ResponseField name="sort_dir" type="string">
+      The sort direction (`asc` or `desc`).
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+```json Example Response
+{
+  "ok": true,
+  "data": [
+    {
+      "id": "uuid",
+      "company_id": "uuid",
+      "repair_id": "uuid",
+      "repair": {
+        "id": "uuid",
+        "repair_number": 123,
+        "repair_number_formatted": "R-0123",
+        "device": "iPhone 13 Pro",
+        "customer_id": "uuid"
+      },
+      "user_id": "uuid",
+      "created_by": {
+        "id": "uuid",
+        "full_name": "Maria Técnica"
+      },
+      "description": "Screen replaced. Tested OK.",
+      "edited": false,
+      "client_warned": true,
+      "created_at": "2026-08-19T12:00:00.000Z"
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "per_page": 50,
+    "total": 5,
+    "total_pages": 1,
+    "sort_by": "created_at",
+    "sort_dir": "desc"
+  }
+}
+```
+
+<Note>
+  `created_by` is `null` for auto-generated procedure entries (e.g. when a repair is created via the API, or when a customer accepts a quote). This is expected behavior.
+</Note>

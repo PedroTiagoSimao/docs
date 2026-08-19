@@ -1,24 +1,11 @@
 {
-  "$schema": "https://mintlify.com/docs.json",
+  "projectType": "api-service",
+  "projectName": "QUEUE API",
+  "projectDescription": "QUEUE is a repair shop management platform with a REST API that allows integrations to create and retrieve repairs, procedures, quotes, attachments, and communications.",
   "theme": "luma",
-  "name": "QUEUE API",
-  "colors": {
-    "primary": "#ef7025",
-    "light": "#eec9bc",
-    "dark": "#4fa1ab"
-  },
-  "favicon": "/favicon.svg",
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
-  "navbar": {
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://app.queue.com"
-    }
-  },
+  "primaryColor": "#ef7025",
+  "lightColor": "#eec9bc",
+  "darkColor": "#4fa1ab",
   "navigation": {
     "tabs": [
       {
@@ -75,7 +62,21 @@
       }
     ]
   },
-  "footer": {
-    "socials": {}
-  }
+  "keyFeatures": [
+    "Create and list repair orders with customer deduplication",
+    "Retrieve procedure logs for each repair",
+    "Access quotes and their customer acceptance status",
+    "List file attachments at repair and procedure level",
+    "Read communications (sent/received emails) per repair",
+    "Scoped API tokens with per-endpoint permission control",
+    "Consistent JSON response envelope with pagination metadata"
+  ],
+  "publicApiSurface": [
+    "POST /api/v1/repairs",
+    "GET /api/v1/repairs",
+    "GET /api/v1/procedures",
+    "GET /api/v1/quotes",
+    "GET /api/v1/attachments",
+    "GET /api/v1/communications"
+  ]
 }

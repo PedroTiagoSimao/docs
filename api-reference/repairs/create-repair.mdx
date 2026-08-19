@@ -1,0 +1,229 @@
+---
+title: "POST /repairs — Create a New Repair Order in QUEUE"
+sidebarTitle: "POST /repairs"
+description: "POST /api/v1/repairs — Create a new repair order. Accepts customer info, device, service details, and status. Returns the created repair with its ID and repair number."
+---
+
+Use this endpoint to create a new repair order in QUEUE. You can reference an existing customer by ID or supply inline customer data — QUEUE will match or create the customer automatically. Requires the `repairs:write` scope.
+
+```
+POST https://<your-queue-domain>/api/v1/repairs
+```
+
+## Required Headers
+
+| Header          | Value                              |
+| --------------- | ---------------------------------- |
+| `Content-Type`  | `application/json`                 |
+| `Authorization` | `Bearer queue_<your_token>`        |
+
+## Request Body
+
+<ParamField body="customer_id" type="uuid" required={false}>
+  Existing customer UUID. Required if not providing inline customer data.
+</ParamField>
+
+<ParamField body="customer" type="object" required={false}>
+  Inline customer object. QUEUE deduplicates by email → NIF → phone. Required if `customer_id` is not provided.
+
+  <Expandable title="customer fields">
+    <ParamField body="customer.full_name" type="string" required={false}>
+      Full name of the customer. Required when no `customer_id` is provided and no existing customer match is found.
+    </ParamField>
+
+    <ParamField body="customer.email" type="string" required={false}>
+      Email address used for deduplication. QUEUE will match an existing customer by this value first.
+    </ParamField>
+
+    <ParamField body="customer.phone" type="string" required={false}>
+      Phone number used as a tertiary deduplication key if no email or NIF match is found.
+    </ParamField>
+
+    <ParamField body="customer.nif" type="string | number" required={false}>
+      Portuguese tax identification number (NIF). Used as a secondary deduplication key.
+    </ParamField>
+
+    <ParamField body="customer.address" type="string" required={false}>
+      Street address of the customer.
+    </ParamField>
+
+    <ParamField body="customer.cp" type="string" required={false}>
+      Postal code.
+    </ParamField>
+
+    <ParamField body="customer.city" type="string" required={false}>
+      City name.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="device" type="string" required={false}>
+  Equipment or device name (e.g. `"Samsung Galaxy S23"`). Required if `service` is not provided.
+</ParamField>
+
+<ParamField body="service" type="string" required={false}>
+  Service description (e.g. `"Troca de bateria"`). Required if `device` is not provided.
+</ParamField>
+
+<ParamField body="serial" type="string" required={false}>
+  Serial number or IMEI of the device.
+</ParamField>
+
+<ParamField body="password" type="string" required={false}>
+  Device passcode or unlock pattern, stored for technician reference.
+</ParamField>
+
+<ParamField body="description" type="string" required={false}>
+  Detailed description of the reported issue.
+</ParamField>
+
+<ParamField body="accessories" type="string" required={false}>
+  List of accessories included with the device (e.g. `"Carregador, capa"`).
+</ParamField>
+
+<ParamField body="status" type="string" required={false}>
+  Repair status identified by UUID, slug, or display name. Defaults to your company's configured default status if omitted.
+</ParamField>
+
+<ParamField body="warranty_status" type="string" required={false}>
+  Warranty status identified by UUID, slug, or display name.
+</ParamField>
+
+<ParamField body="scheduled_at" type="ISO-8601" required={false}>
+  Scheduled date and time for the repair, in ISO-8601 format (e.g. `"2026-09-15T10:30:00Z"`).
+</ParamField>
+
+<Note>
+  **Customer deduplication** — QUEUE resolves the customer in the following order:
+
+  1. **Email** — if a customer with the given email already exists, that record is used.
+  2. **NIF** — if no email match is found, QUEUE checks for a matching tax ID.
+  3. **Phone** — if neither email nor NIF match, QUEUE checks by phone number.
+  4. **Create** — if no match is found and `customer.full_name` is provided, a new customer record is created. `customer_is_new` will be `true` in the response.
+</Note>
+
+## Example Request
+
+```bash
+curl -X POST 'https://your-domain.com/api/v1/repairs' \
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxx' \
+  -d '{
+    "customer": {
+      "full_name": "João Silva",
+      "email": "joao@example.com"
+    },
+    "device": "Samsung Galaxy S23",
+    "service": "Troca de bateria",
+    "description": "Bateria não aguenta 1 dia."
+  }'
+```
+
+## Response — 201 Created
+
+<ResponseField name="ok" type="boolean">
+  Always `true` on a successful response.
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The newly created repair order object.
+
+  <Expandable title="data fields">
+    <ResponseField name="data.id" type="string">
+      UUID of the created repair order.
+    </ResponseField>
+
+    <ResponseField name="data.repair_number" type="integer">
+      Sequential repair number, unique within your company.
+    </ResponseField>
+
+    <ResponseField name="data.repair_number_formatted" type="string">
+      Zero-padded, human-readable display string (e.g. `"R-0123"`).
+    </ResponseField>
+
+    <ResponseField name="data.created_at" type="string">
+      ISO-8601 timestamp of when the repair was created.
+    </ResponseField>
+
+    <ResponseField name="data.company_id" type="string">
+      UUID of your QUEUE company.
+    </ResponseField>
+
+    <ResponseField name="data.customer_id" type="string">
+      UUID of the matched or newly created customer.
+    </ResponseField>
+
+    <ResponseField name="data.customer_is_new" type="boolean">
+      `true` if QUEUE created a new customer record for this repair, `false` if an existing customer was matched.
+    </ResponseField>
+
+    <ResponseField name="data.device" type="string">
+      Device name as submitted in the request.
+    </ResponseField>
+
+    <ResponseField name="data.service" type="string">
+      Service description as submitted in the request.
+    </ResponseField>
+
+    <ResponseField name="data.serial" type="string | null">
+      Serial number or IMEI, or `null` if not provided.
+    </ResponseField>
+
+    <ResponseField name="data.password" type="string | null">
+      Device passcode, or `null` if not provided.
+    </ResponseField>
+
+    <ResponseField name="data.description" type="string | null">
+      Issue description, or `null` if not provided.
+    </ResponseField>
+
+    <ResponseField name="data.accessories" type="string | null">
+      Accessories list, or `null` if not provided.
+    </ResponseField>
+
+    <ResponseField name="data.status" type="string">
+      UUID of the assigned repair status.
+    </ResponseField>
+
+    <ResponseField name="data.warranty_status" type="string | null">
+      UUID of the assigned warranty status, or `null` if not set.
+    </ResponseField>
+
+    <ResponseField name="data.scheduled_at" type="string | null">
+      ISO-8601 scheduled datetime, or `null` if not set.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+```json
+{
+  "ok": true,
+  "data": {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "repair_number": 123,
+    "repair_number_formatted": "R-0123",
+    "created_at": "2026-08-19T12:00:00.000Z",
+    "company_id": "uuid",
+    "customer_id": "uuid",
+    "customer_is_new": true,
+    "device": "Samsung Galaxy S23",
+    "service": "Troca de bateria",
+    "serial": null,
+    "password": null,
+    "description": "Bateria não aguenta 1 dia.",
+    "accessories": null,
+    "status": "uuid",
+    "warranty_status": null,
+    "scheduled_at": null
+  }
+}
+```
+
+## Error Responses
+
+| HTTP  | Code               | When it happens                                                                                  |
+| ----- | ------------------ | ------------------------------------------------------------------------------------------------ |
+| `400` | `bad_request`      | Request body is not valid JSON.                                                                  |
+| `401` | `unauthorized`     | Token is missing, has a bad format, is unknown, or has been revoked.                             |
+| `403` | `forbidden`        | Subscription has lost API access, billing is blocked, or the token is missing `repairs:write` scope. |
+| `422` | `validation_error` | Missing required fields (`customer` + `device` or `service`). Per-field details in `error.details`. |

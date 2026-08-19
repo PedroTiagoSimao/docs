@@ -1,0 +1,225 @@
+---
+title: "GET /attachments — List Files Attached to Repairs"
+sidebarTitle: "GET /attachments"
+description: "GET /api/v1/attachments — List file attachments linked to repairs or procedure steps. Filter by repair ID, procedure ID, or search by filename. Requires attachments:read scope."
+---
+
+The attachments endpoint returns file metadata for photos and documents linked to your repairs and procedure steps. Requires the `attachments:read` scope. Note that downloading file contents requires a separate signed-URL flow through your storage provider — the API returns metadata only.
+
+```
+GET https://<your-queue-domain>/api/v1/attachments
+```
+
+## Required Headers
+
+<ParamField header="Authorization" type="string" required>
+  Bearer token using your QUEUE API key. Format: `Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxx`
+</ParamField>
+
+---
+
+## Query Parameters
+
+<ParamField query="page" type="integer" default="1">
+  Page number for paginated results.
+</ParamField>
+
+<ParamField query="per_page" type="integer" default="50">
+  Number of results per page. Maximum value is `200`. Alias: `limit`
+</ParamField>
+
+<ParamField query="repair_id" type="uuid">
+  Filter to only return attachments belonging to a specific repair. Optional.
+</ParamField>
+
+<ParamField query="procedure_id" type="uuid">
+  Filter to only return attachments linked to a specific procedure step. When omitted (null), the response includes both repair-level and procedure-level attachments. Optional.
+</ParamField>
+
+<ParamField query="created_after" type="string">
+  Return only attachments created on or after this timestamp. Accepts ISO-8601 format (e.g. `2026-08-01T00:00:00Z`). Optional.
+</ParamField>
+
+<ParamField query="created_before" type="string">
+  Return only attachments created on or before this timestamp. Accepts ISO-8601 format (e.g. `2026-08-31T23:59:59Z`). Optional.
+</ParamField>
+
+<ParamField query="q" type="string">
+  Case-insensitive search across `file_name` and `description` fields. Alias: `search`. Optional.
+</ParamField>
+
+<ParamField query="sort_by" type="string" default="created_at">
+  Field to sort results by. Allowed values: `created_at`, `id`.
+</ParamField>
+
+<ParamField query="sort_dir" type="string" default="desc">
+  Sort direction. Allowed values: `asc`, `desc`.
+</ParamField>
+
+---
+
+## Example Requests
+
+```bash
+# All attachments for a repair
+curl 'https://your-domain.com/api/v1/attachments?repair_id=a1b2c3d4-e5f6-7890-abcd-ef1234567890' \
+  -H 'Authorization: Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxx'
+
+# Only procedure-step attachments
+curl 'https://your-domain.com/api/v1/attachments?procedure_id=b2c3d4e5-f6a7-8901-bcde-f12345678901' \
+  -H 'Authorization: Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxx'
+
+# Search by filename
+curl 'https://your-domain.com/api/v1/attachments?q=before-repair' \
+  -H 'Authorization: Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxx'
+```
+
+---
+
+## Response — 200 OK
+
+<ResponseField name="ok" type="boolean">
+  `true` when the request was successful.
+</ResponseField>
+
+<ResponseField name="data" type="array">
+  Array of attachment objects.
+
+  <Expandable title="Attachment object fields">
+    <ResponseField name="id" type="string">
+      Unique UUID identifier for this attachment.
+    </ResponseField>
+
+    <ResponseField name="company_id" type="string">
+      UUID of the company that owns this attachment.
+    </ResponseField>
+
+    <ResponseField name="repair_id" type="string">
+      UUID of the parent repair this attachment belongs to.
+    </ResponseField>
+
+    <ResponseField name="procedure_id" type="string | null">
+      UUID of the procedure step this attachment is linked to. Set when the attachment belongs to a specific procedure log entry; `null` for repair-level attachments.
+    </ResponseField>
+
+    <ResponseField name="file_name" type="string">
+      Original filename as uploaded (e.g. `screen-broken.jpg`).
+    </ResponseField>
+
+    <ResponseField name="description" type="string | null">
+      Optional description or caption provided at upload time. `null` if not set.
+    </ResponseField>
+
+    <ResponseField name="storage_path" type="string">
+      Storage object key path identifying the file in your configured storage bucket.
+    </ResponseField>
+
+    <ResponseField name="file_type" type="string">
+      MIME type of the file (e.g. `image/jpeg`, `application/pdf`).
+    </ResponseField>
+
+    <ResponseField name="file_size" type="integer">
+      File size in bytes.
+    </ResponseField>
+
+    <ResponseField name="uploaded_by" type="string">
+      UUID of the user who uploaded the file.
+    </ResponseField>
+
+    <ResponseField name="user_id" type="string">
+      UUID of the user associated with this attachment.
+    </ResponseField>
+
+    <ResponseField name="created_by_user" type="object">
+      Summary of the user who created this attachment.
+
+      <Expandable title="created_by_user fields">
+        <ResponseField name="id" type="string">
+          UUID of the user.
+        </ResponseField>
+
+        <ResponseField name="full_name" type="string">
+          Full display name of the user.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+
+    <ResponseField name="created_at" type="string">
+      ISO-8601 timestamp of when the attachment was uploaded.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="meta" type="object">
+  Pagination metadata for the response.
+
+  <Expandable title="meta fields">
+    <ResponseField name="page" type="integer">
+      Current page number.
+    </ResponseField>
+
+    <ResponseField name="per_page" type="integer">
+      Number of results returned per page.
+    </ResponseField>
+
+    <ResponseField name="total" type="integer">
+      Total number of matching attachments.
+    </ResponseField>
+
+    <ResponseField name="total_pages" type="integer">
+      Total number of pages available.
+    </ResponseField>
+
+    <ResponseField name="sort_by" type="string">
+      Field the results are sorted by.
+    </ResponseField>
+
+    <ResponseField name="sort_dir" type="string">
+      Sort direction applied (`asc` or `desc`).
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example Response Body
+
+```json
+{
+  "ok": true,
+  "data": [
+    {
+      "id": "uuid",
+      "company_id": "uuid",
+      "repair_id": "uuid",
+      "procedure_id": null,
+      "file_name": "screen-broken.jpg",
+      "description": "Photo before repair.",
+      "storage_path": "company-uuid/repairs/repair-uuid/screen-broken.jpg",
+      "file_type": "image/jpeg",
+      "file_size": 1842331,
+      "uploaded_by": "uuid",
+      "user_id": "uuid",
+      "created_by_user": {
+        "id": "uuid",
+        "full_name": "Maria Técnica"
+      },
+      "created_at": "2026-08-19T12:00:00.000Z"
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "per_page": 50,
+    "total": 3,
+    "total_pages": 1,
+    "sort_by": "created_at",
+    "sort_dir": "desc"
+  }
+}
+```
+
+<Warning>
+  `storage_path` is the raw storage object key. A file download endpoint is not yet available in the public API. To download files, use a signed URL flow through your configured storage bucket.
+</Warning>
+
+<Info>
+  `procedure_id` is `null` for photos attached directly to a repair. When set, the attachment belongs to a specific procedure log entry.
+</Info>

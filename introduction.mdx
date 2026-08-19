@@ -1,0 +1,91 @@
+---
+title: "QUEUE API: Integrate Your Repair Shop Workflows"
+sidebarTitle: "Introduction"
+description: "QUEUE is a REST API for repair shop management. Learn what resources are available, how the API is structured, and what you can build."
+---
+
+QUEUE is a repair shop management platform with a REST API that lets you integrate your existing tools — including WooCommerce storefronts, CRMs, POS systems, and custom back-office dashboards — directly with your repair workflow. Every repair, procedure, quote, attachment, and communication in QUEUE is accessible programmatically, so you can automate intake, sync customer records, and build reporting pipelines without leaving your own stack.
+
+## What You Can Do
+
+The QUEUE API gives you programmatic access to the core objects in your repair shop:
+
+- **Create repairs** — open a new repair ticket on behalf of a customer, including device details, service description, and accessories
+- **List & retrieve repairs** — query your full repair history or fetch a single ticket by ID
+- **Read procedures** — access the step-by-step procedures attached to any repair
+- **Read quotes** — pull pricing and approval status for the quotes generated during a repair
+- **Read attachments** — retrieve photos, documents, and files uploaded to a repair record
+- **Read communications** — access the messages and notifications sent to customers throughout the repair lifecycle
+
+## API Basics
+
+All requests are made over HTTPS. The base URL for every endpoint is:
+
+```
+https://<your-queue-domain>/api/v1
+```
+
+Replace `<your-queue-domain>` with the custom domain associated with your QUEUE account.
+
+**Required headers**
+
+| Header | Value |
+|---|---|
+| `Content-Type` | `application/json` |
+| `Authorization` | `Bearer queue_<your_token>` |
+
+**Response envelope**
+
+Every response from the QUEUE API is wrapped in a standard JSON envelope:
+
+```json
+{
+  "ok": true,
+  "data": { ... }
+}
+```
+
+- `ok` — `true` on success, `false` on error
+- `data` — the primary payload; a single object for singular resources, an array (with pagination metadata) for collections
+- `error` — present only when `ok` is `false`; contains a machine-readable code and a human-readable message
+
+## Available Resources
+
+<CardGroup cols={2}>
+  <Card
+    title="Repairs"
+    icon="wrench"
+    href="/api-reference/repairs/create-repair"
+  >
+    Create repair tickets and retrieve repair records for your customers and devices.
+  </Card>
+  <Card
+    title="Procedures"
+    icon="list-check"
+    href="/api-reference/procedures/list-procedures"
+  >
+    Read the step-by-step procedures associated with any repair in your shop.
+  </Card>
+  <Card
+    title="Quotes"
+    icon="file-invoice-dollar"
+    href="/api-reference/quotes/list-quotes"
+  >
+    Access pricing, line items, and approval status for repair quotes.
+  </Card>
+  <Card
+    title="Attachments & Communications"
+    icon="paperclip"
+    href="/api-reference/attachments/list-attachments"
+  >
+    Retrieve uploaded files and customer-facing messages tied to a repair.
+  </Card>
+</CardGroup>
+
+## Subscription Requirement
+
+Access to the QUEUE REST API is available only to companies on a subscription plan that includes API access. If your current plan does not include the REST API, you will not be able to generate API tokens from your dashboard. Contact your account manager or visit your billing settings to upgrade.
+
+<Note>
+  API tokens are **company-scoped**. Every token you generate grants access exclusively to your own company's data — there is no way for a token to read or modify another company's repairs, customers, or records.
+</Note>

@@ -1,0 +1,122 @@
+---
+title: "QUEUE API Response Format and Error Codes"
+sidebarTitle: "Response Format"
+description: "Every QUEUE API response uses a consistent JSON envelope with ok, data, and meta fields. Learn how to read successes, lists, and errors."
+---
+
+All QUEUE API responses share a consistent JSON envelope. The top-level `ok` boolean tells you immediately whether the request succeeded, and the structure of `data` and `meta` are predictable across every endpoint.
+
+## Success Response
+
+Single-resource endpoints (e.g. `GET /repairs/:id`, `POST /repairs`, `PATCH /repairs/:id`) return a `data` object containing the resource:
+
+```json
+{
+  "ok": true,
+  "data": { "...": "..." }
+}
+```
+
+When `ok` is `true`, `data` is the resource you requested or mutated. No `meta` field is present on single-resource responses.
+
+## List Response
+
+`GET` list endpoints (e.g. `GET /repairs`, `GET /procedures`) return `data` as an array and include a `meta` object with pagination context:
+
+```json
+{
+  "ok": true,
+  "data": [{ "...": "..." }],
+  "meta": {
+    "page": 1,
+    "per_page": 50,
+    "total": 128,
+    "total_pages": 3,
+    "sort_by": "created_at",
+    "sort_dir": "desc"
+  }
+}
+```
+
+| Field | Description |
+|---|---|
+| `page` | The current page number (1-based). |
+| `per_page` | The number of records returned per page. |
+| `total` | Total number of records matching the query across all pages. |
+| `total_pages` | Total number of pages available at the current `per_page` value. |
+| `sort_by` | The field the result set is sorted by. |
+| `sort_dir` | The sort direction — either `asc` or `desc`. |
+
+## Error Response
+
+When a request fails (4xx or 5xx), `ok` is `false` and a top-level `error` object replaces `data`:
+
+```json
+{
+  "ok": false,
+  "error": {
+    "code": "validation_error",
+    "message": "Human-readable message.",
+    "details": [{ "field": "customer.full_name", "message": "..." }]
+  }
+}
+```
+
+| Field | Description |
+|---|---|
+| `error.code` | A machine-readable string identifying the error type. Use this for conditional handling in your code. |
+| `error.message` | A human-readable summary of what went wrong. Suitable for logging, not for display to end-users. |
+| `error.details` | An array of field-level validation messages. **Only present when `error.code` is `validation_error`.** Each item includes a `field` path (e.g. `customer.full_name`) and a `message` describing the problem. |
+
+## Error Codes
+
+| Code | HTTP Status | Meaning |
+|---|---|---|
+| `unauthorized` | 401 | Missing, invalid, or revoked API token. |
+| `forbidden` | 403 | Subscription doesn't allow API access, billing blocked, or token missing required scope. |
+| `bad_request` | 400 | Malformed JSON or invalid query parameters. |
+| `not_found` | 404 | The referenced record does not exist. |
+| `validation_error` | 422 | Field-level validation failed. Check `error.details` for per-field messages. |
+
+## Handling Errors in Code
+
+Check `ok` before processing the response body. When `ok` is `false`, branch on `error.code` to handle specific failure modes:
+
+```bash
+# Check the ok field before processing
+curl -s 'https://your-domain.com/api/v1/repairs' \
+  -H 'Authorization: Bearer queue_xxxx' | python3 -m json.tool
+```
+
+A typical pattern in application code looks like:
+
+```javascript
+const res = await fetch("https://your-domain.com/api/v1/repairs", {
+  headers: { Authorization: "Bearer queue_xxxx" },
+});
+const body = await res.json();
+
+if (!body.ok) {
+  switch (body.error.code) {
+    case "unauthorized":
+      // Prompt re-authentication or token refresh
+      break;
+    case "validation_error":
+      // Surface body.error.details to the user
+      break;
+    case "not_found":
+      // Handle missing resource gracefully
+      break;
+    default:
+      // Log and alert on unexpected errors
+      console.error(body.error.message);
+  }
+} else {
+  // Safe to use body.data
+  console.log(body.data);
+}
+```
+
+<Tip>
+  Always check `ok` first. Never assume a 2xx HTTP status alone means the operation succeeded — though in practice QUEUE always returns a non-2xx status on errors.
+</Tip>

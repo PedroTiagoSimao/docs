@@ -1,0 +1,228 @@
+---
+title: "GET /communications — List Repair Email Messages"
+sidebarTitle: "GET /communications"
+description: "GET /api/v1/communications — List email messages sent to or received from customers. Filter by repair ID, date range, or search message content. Requires communications:read scope."
+---
+
+The communications endpoint returns email messages associated with your repair orders — both messages sent to customers and replies received from them. Requires the `communications:read` scope.
+
+```
+GET https://<your-queue-domain>/api/v1/communications
+```
+
+## Required Headers
+
+<ParamField header="Authorization" type="string" required>
+  Bearer token using your QUEUE API key. Format: `Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxx`
+</ParamField>
+
+---
+
+## Query Parameters
+
+<ParamField query="page" type="integer" default="1">
+  Page number for paginated results.
+</ParamField>
+
+<ParamField query="per_page" type="integer" default="50">
+  Number of results per page. Maximum value is `200`. Alias: `limit`
+</ParamField>
+
+<ParamField query="repair_id" type="uuid">
+  Filter to only return messages belonging to a specific repair. Optional.
+</ParamField>
+
+<ParamField query="created_after" type="string">
+  Return only messages created on or after this timestamp. Accepts ISO-8601 format (e.g. `2026-08-01T00:00:00Z`). Optional.
+</ParamField>
+
+<ParamField query="created_before" type="string">
+  Return only messages created on or before this timestamp. Accepts ISO-8601 format (e.g. `2026-08-31T23:59:59Z`). Optional.
+</ParamField>
+
+<ParamField query="q" type="string">
+  Search across `subject`, message body, `from_email`, and `to_email` fields. Alias: `search`. Optional.
+</ParamField>
+
+<ParamField query="sort_by" type="string" default="created_at">
+  Field to sort results by. Allowed values: `created_at`, `id`.
+</ParamField>
+
+<ParamField query="sort_dir" type="string" default="desc">
+  Sort direction. Allowed values: `asc`, `desc`.
+</ParamField>
+
+---
+
+## Example Requests
+
+```bash
+# All messages for a repair
+curl 'https://your-domain.com/api/v1/communications?repair_id=a1b2c3d4-e5f6-7890-abcd-ef1234567890' \
+  -H 'Authorization: Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxx'
+
+# Search message content
+curl 'https://your-domain.com/api/v1/communications?q=ready+for+pickup' \
+  -H 'Authorization: Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxx'
+
+# Messages from the last 7 days
+curl 'https://your-domain.com/api/v1/communications?created_after=2026-08-12T00:00:00Z' \
+  -H 'Authorization: Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxx'
+```
+
+---
+
+## Response — 200 OK
+
+<ResponseField name="ok" type="boolean">
+  `true` when the request was successful.
+</ResponseField>
+
+<ResponseField name="data" type="array">
+  Array of communication objects.
+
+  <Expandable title="Communication object fields">
+    <ResponseField name="id" type="string">
+      Unique UUID identifier for this communication record.
+    </ResponseField>
+
+    <ResponseField name="company_id" type="string">
+      UUID of the company that owns this communication.
+    </ResponseField>
+
+    <ResponseField name="repair_id" type="string">
+      UUID of the parent repair this message is associated with.
+    </ResponseField>
+
+    <ResponseField name="repair" type="object">
+      Summary of the related repair order.
+
+      <Expandable title="repair fields">
+        <ResponseField name="id" type="string">
+          UUID of the repair.
+        </ResponseField>
+
+        <ResponseField name="repair_number" type="integer">
+          Numeric repair identifier.
+        </ResponseField>
+
+        <ResponseField name="repair_number_formatted" type="string">
+          Human-readable formatted repair number (e.g. `R-0123`).
+        </ResponseField>
+
+        <ResponseField name="device" type="string">
+          Device description for the repair (e.g. `iPhone 13 Pro`).
+        </ResponseField>
+
+        <ResponseField name="customer_id" type="string">
+          UUID of the customer associated with this repair.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+
+    <ResponseField name="direction" type="string">
+      Indicates the flow of the message. Either `sent` (shop → customer) or `received` (customer reply). See [Message Direction](#message-direction) below.
+    </ResponseField>
+
+    <ResponseField name="subject" type="string">
+      Email subject line.
+    </ResponseField>
+
+    <ResponseField name="from_email" type="string">
+      Sender email address.
+    </ResponseField>
+
+    <ResponseField name="to_email" type="string">
+      Recipient email address.
+    </ResponseField>
+
+    <ResponseField name="description" type="string">
+      Plaintext body of the email. HTML formatting is not included.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="string">
+      ISO-8601 timestamp of when the communication was recorded.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="meta" type="object">
+  Pagination metadata for the response.
+
+  <Expandable title="meta fields">
+    <ResponseField name="page" type="integer">
+      Current page number.
+    </ResponseField>
+
+    <ResponseField name="per_page" type="integer">
+      Number of results returned per page.
+    </ResponseField>
+
+    <ResponseField name="total" type="integer">
+      Total number of matching communications.
+    </ResponseField>
+
+    <ResponseField name="total_pages" type="integer">
+      Total number of pages available.
+    </ResponseField>
+
+    <ResponseField name="sort_by" type="string">
+      Field the results are sorted by.
+    </ResponseField>
+
+    <ResponseField name="sort_dir" type="string">
+      Sort direction applied (`asc` or `desc`).
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example Response Body
+
+```json
+{
+  "ok": true,
+  "data": [
+    {
+      "id": "uuid",
+      "company_id": "uuid",
+      "repair_id": "uuid",
+      "repair": {
+        "id": "uuid",
+        "repair_number": 123,
+        "repair_number_formatted": "R-0123",
+        "device": "iPhone 13 Pro",
+        "customer_id": "uuid"
+      },
+      "direction": "sent",
+      "subject": "Your repair is ready!",
+      "from_email": "shop@repairshop.com",
+      "to_email": "joao@example.com",
+      "description": "Hi João, your iPhone 13 Pro repair is complete and ready for pickup...",
+      "created_at": "2026-08-19T12:00:00.000Z"
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "per_page": 50,
+    "total": 4,
+    "total_pages": 1,
+    "sort_by": "created_at",
+    "sort_dir": "desc"
+  }
+}
+```
+
+---
+
+## Message Direction
+
+The `direction` field indicates which party initiated the message:
+
+| Value | Description |
+|---|---|
+| `sent` | A message sent from your shop to the customer, dispatched via the QUEUE platform. |
+| `received` | A customer reply received into QUEUE in response to a previous outbound message. |
+
+<Info>
+  `description` contains the plaintext email body. HTML formatting is not included.
+</Info>
