@@ -11,13 +11,13 @@ Every `GET` list endpoint in the QUEUE API supports the same set of pagination, 
 Control how many records are returned per page and which page you're on using the following parameters:
 
 | Parameter | Default | Range | Notes |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `page` | `1` | 1–10000 | 1-based page number. |
 | `per_page` (alias: `limit`) | `50` | 1–200 | Maximum number of records returned per page. |
 
 ```bash
 # Fetch the second page of repairs, 25 records at a time
-curl 'https://<your-queue-domain>/api/v1/repairs?page=2&per_page=25' \
+curl 'https://queue.pt/api/v1/repairs?page=2&per_page=25' \
   -H 'Authorization: Bearer queue_xxxx'
 ```
 
@@ -30,7 +30,7 @@ let totalPages = 1;
 
 do {
   const res = await fetch(
-    `https://<your-queue-domain>/api/v1/repairs?page=${page}&per_page=200`,
+    `https://queue.pt/api/v1/repairs?page=${page}&per_page=200`,
     { headers: { Authorization: "Bearer queue_xxxx" } }
   );
   const body = await res.json();
@@ -46,7 +46,7 @@ do {
 Narrow list results with these filter parameters. Multiple filters can be combined in a single request.
 
 | Parameter | Type | Applies To | Notes |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `repair_id` | uuid | procedures, quotes, attachments, communications | Returns only records belonging to the specified repair. |
 | `customer_id` | uuid | repairs | Returns only repairs belonging to the specified customer. |
 | `procedure_id` | uuid | attachments | Returns only attachments linked to the specified procedure. |
@@ -62,7 +62,7 @@ Narrow list results with these filter parameters. Multiple filters can be combin
 The `q` parameter searches different fields depending on the resource:
 
 | Resource | Fields searched |
-|---|---|
+| --- | --- |
 | repairs | `device`, `service`, `serial`, `description`, customer `full_name`, `email`, `phone` |
 | procedures | `description` |
 | attachments | `file_name`, `description` |
@@ -77,14 +77,14 @@ The `q` parameter searches different fields depending on the resource:
 Control the order of results with these parameters:
 
 | Parameter | Default | Notes |
-|---|---|---|
+| --- | --- | --- |
 | `sort_by` (alias: `sortBy`) | `created_at` | The field to sort by. Allowed values differ per endpoint — invalid values silently fall back to `created_at`. |
 | `sort_dir` (alias: `sortDir`) | `desc` | `asc` for oldest/lowest first, `desc` for newest/highest first. Any value other than `asc` defaults to `desc`. |
 
 **Allowed `sort_by` values per endpoint:**
 
 | Endpoint | Allowed values |
-|---|---|
+| --- | --- |
 | repairs | `created_at`, `scheduled_at`, `repair_number`, `status` |
 | procedures | `created_at`, `id` |
 | quotes | `created_at`, `quote_number`, `status` |
@@ -96,7 +96,7 @@ Control the order of results with these parameters:
 **Filter repairs by date range:**
 
 ```bash
-curl 'https://<your-queue-domain>/api/v1/repairs?created_after=2024-01-01T00:00:00Z&created_before=2024-03-31T23:59:59Z' \
+curl 'https://queue.pt/api/v1/repairs?created_after=2024-01-01T00:00:00Z&created_before=2024-03-31T23:59:59Z' \
   -H 'Authorization: Bearer queue_xxxx'
 ```
 
@@ -104,27 +104,27 @@ curl 'https://<your-queue-domain>/api/v1/repairs?created_after=2024-01-01T00:00:
 
 ```bash
 # Using a status slug
-curl 'https://<your-queue-domain>/api/v1/repairs?status=in-progress' \
+curl 'https://queue.pt/api/v1/repairs?status=in-progress' \
   -H 'Authorization: Bearer queue_xxxx'
 ```
 
 **Search procedures by description:**
 
 ```bash
-curl 'https://<your-queue-domain>/api/v1/procedures?q=screen+replacement&repair_id=rep_abc123' \
+curl 'https://queue.pt/api/v1/procedures?q=screen+replacement&repair_id=rep_abc123' \
   -H 'Authorization: Bearer queue_xxxx'
 ```
 
 **Combined pagination and sorting — latest repairs, 100 per page:**
 
 ```bash
-curl 'https://<your-queue-domain>/api/v1/repairs?page=1&per_page=100&sort_by=created_at&sort_dir=desc' \
+curl 'https://queue.pt/api/v1/repairs?page=1&per_page=100&sort_by=created_at&sort_dir=desc' \
   -H 'Authorization: Bearer queue_xxxx'
 ```
 
 **Fetch all communications for a specific repair:**
 
 ```bash
-curl 'https://<your-queue-domain>/api/v1/communications?repair_id=rep_abc123&sort_by=created_at&sort_dir=asc' \
+curl 'https://queue.pt/api/v1/communications?repair_id=rep_abc123&sort_by=created_at&sort_dir=asc' \
   -H 'Authorization: Bearer queue_xxxx'
 ```

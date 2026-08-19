@@ -6,8 +6,8 @@ description: "Retrieve email communications linked to repair orders. Filter by r
 
 The communications endpoint returns email messages associated with your repair orders — both messages sent to customers and replies received from them. Requires the `communications:read` scope.
 
-```
-GET https://<your-queue-domain>/api/v1/communications
+```text
+GET https://queue.pt/api/v1/communications
 ```
 
 ## Required Headers
@@ -20,11 +20,11 @@ GET https://<your-queue-domain>/api/v1/communications
 
 ## Query Parameters
 
-<ParamField query="page" type="integer" default="1">
+<ParamField query="page" default="1" type="integer">
   Page number for paginated results.
 </ParamField>
 
-<ParamField query="per_page" type="integer" default="50">
+<ParamField query="per_page" default="50" type="integer">
   Number of results per page. Maximum value is `200`. Alias: `limit`
 </ParamField>
 
@@ -44,11 +44,11 @@ GET https://<your-queue-domain>/api/v1/communications
   Search across `subject`, message body, `from_email`, and `to_email` fields. Alias: `search`. Optional.
 </ParamField>
 
-<ParamField query="sort_by" type="string" default="created_at">
+<ParamField query="sort_by" default="created_at" type="string">
   Field to sort results by. Allowed values: `created_at`, `id`.
 </ParamField>
 
-<ParamField query="sort_dir" type="string" default="desc">
+<ParamField query="sort_dir" default="desc" type="string">
   Sort direction. Allowed values: `asc`, `desc`.
 </ParamField>
 
@@ -58,15 +58,15 @@ GET https://<your-queue-domain>/api/v1/communications
 
 ```bash
 # All messages for a repair
-curl 'https://your-domain.com/api/v1/communications?repair_id=a1b2c3d4-e5f6-7890-abcd-ef1234567890' \
+curl 'https://queue.pt/api/v1/communications?repair_id=a1b2c3d4-e5f6-7890-abcd-ef1234567890' \
   -H 'Authorization: Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxx'
 
 # Search message content
-curl 'https://your-domain.com/api/v1/communications?q=ready+for+pickup' \
+curl 'https://queue.pt/api/v1/communications?q=ready+for+pickup' \
   -H 'Authorization: Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxx'
 
 # Messages from the last 7 days
-curl 'https://your-domain.com/api/v1/communications?created_after=2026-08-12T00:00:00Z' \
+curl 'https://queue.pt/api/v1/communications?created_after=2026-08-12T00:00:00Z' \
   -H 'Authorization: Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxx'
 ```
 
@@ -219,7 +219,7 @@ curl 'https://your-domain.com/api/v1/communications?created_after=2026-08-12T00:
 The `direction` field indicates which party initiated the message:
 
 | Value | Description |
-|---|---|
+| --- | --- |
 | `sent` | A message sent from your shop to the customer, dispatched via the QUEUE platform. |
 | `received` | A customer reply received into QUEUE in response to a previous outbound message. |
 

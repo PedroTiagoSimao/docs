@@ -16,22 +16,18 @@ In this guide you'll make your first QUEUE API call — creating a repair ticket
 
     Copy the token immediately — it is shown only once. For full details on token generation and scopes, see the [Authentication](/authentication) page.
   </Step>
-
   <Step title="Set your base URL">
     All QUEUE API endpoints share a single base URL:
 
+    ```text
+    https://queue.pt/api/v1
     ```
-    https://<your-queue-domain>/api/v1
-    ```
-
-    Replace `<your-queue-domain>` with the custom domain tied to your QUEUE account (for example, `acme-repairs.queue.app`). Every example in this guide uses `your-domain.com` as a placeholder — substitute your real domain before running requests.
   </Step>
-
   <Step title="Create your first repair">
     Send a `POST` request to `/repairs` with your customer details, device, and service information:
 
     ```bash
-    curl -X POST 'https://your-domain.com/api/v1/repairs' \
+    curl -X POST 'https://queue.pt/api/v1/repairs' \
       -H 'Content-Type: application/json' \
       -H 'Authorization: Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxx' \
       -d '{
@@ -47,7 +43,6 @@ In this guide you'll make your first QUEUE API call — creating a repair ticket
 
     A successful request returns HTTP `201 Created`.
   </Step>
-
   <Step title="Read the response">
     The API responds with the newly created repair object wrapped in the standard QUEUE envelope:
 
@@ -78,13 +73,12 @@ In this guide you'll make your first QUEUE API call — creating a repair ticket
     Key fields to note:
 
     | Field | Description |
-    |---|---|
+    | --- | --- |
     | `ok` | `true` confirms the request succeeded. |
     | `data.id` | The UUID of the repair — use this to retrieve, update, or reference the ticket in subsequent API calls. |
     | `repair_number_formatted` | The human-readable repair reference (e.g. `R-0123`) displayed in the QUEUE dashboard and on customer-facing documents. |
     | `customer_is_new` | `true` if this is the first repair for this customer's email address; `false` if they already exist in your company's records. |
   </Step>
-
   <Step title="List your repairs">
     Confirm the repair was created by fetching your repairs list:
 
@@ -103,32 +97,19 @@ In this guide you'll make your first QUEUE API call — creating a repair ticket
 You've created your first repair and confirmed it's live in QUEUE. From here, explore the full API reference and core concepts to build out your integration.
 
 <CardGroup cols={2}>
-  <Card
-    title="Full Repairs Reference"
-    icon="wrench"
-    href="/api-reference/repairs/create-repair"
-  >
+  <Card title="Full Repairs Reference" icon="wrench" href="/api-reference/repairs/create-repair">
     Explore every field, validation rule, and response for the Repairs endpoints.
   </Card>
-  <Card
-    title="Core Concepts: Response Format"
-    icon="brackets-curly"
-    href="/concepts/response-format"
-  >
+
+  <Card title="Core Concepts: Response Format" icon="brackets-curly" href="/concepts/response-format">
     Understand the standard QUEUE response envelope, error objects, and status codes.
   </Card>
-  <Card
-    title="Pagination & Filtering"
-    icon="filter"
-    href="/concepts/pagination-filtering"
-  >
+
+  <Card title="Pagination & Filtering" icon="filter" href="/concepts/pagination-filtering">
     Learn how to page through large collections and filter results by date, status, and more.
   </Card>
-  <Card
-    title="Authentication"
-    icon="key"
-    href="/authentication"
-  >
+
+  <Card title="Authentication" icon="key" href="/authentication">
     Manage API tokens, scopes, and best practices for keeping your integration secure.
   </Card>
 </CardGroup>

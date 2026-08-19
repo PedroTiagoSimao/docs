@@ -1,7 +1,7 @@
 ---
 title: "QUEUE REST API: Integrate Your Repair Shop Workflows"
 sidebarTitle: "Introduction"
-description: "QUEUE is a REST API for repair shop management. Learn what resources are available, how the API is structured, and what you can build."
+description: "QUEUE has a REST API you can use to integrate with other platforms. Learn what resources are available, how the API is structured, and what you can build."
 ---
 
 QUEUE is a repair shop management platform with a REST API that lets you integrate your existing tools — including WooCommerce storefronts, CRMs, POS systems, and custom back-office dashboards — directly with your repair workflow. Every repair, procedure, quote, attachment, and communication in QUEUE is accessible programmatically, so you can automate intake, sync customer records, and build reporting pipelines without leaving your own stack.
@@ -21,16 +21,14 @@ The QUEUE API gives you programmatic access to the core objects in your repair s
 
 All requests are made over HTTPS. The base URL for every endpoint is:
 
+```text
+https://queue.pt/api/v1
 ```
-https://<your-queue-domain>/api/v1
-```
-
-Replace `<your-queue-domain>` with the custom domain associated with your QUEUE account.
 
 **Required headers**
 
 | Header | Value |
-|---|---|
+| --- | --- |
 | `Content-Type` | `application/json` |
 | `Authorization` | `Bearer queue_<your_token>` |
 
@@ -52,32 +50,19 @@ Every response from the QUEUE API is wrapped in a standard JSON envelope:
 ## Available Resources
 
 <CardGroup cols={2}>
-  <Card
-    title="Repairs"
-    icon="wrench"
-    href="/api-reference/repairs/create-repair"
-  >
+  <Card title="Repairs" icon="wrench" href="/api-reference/repairs/create-repair">
     Create repair tickets and retrieve repair records for your customers and devices.
   </Card>
-  <Card
-    title="Procedures"
-    icon="list-check"
-    href="/api-reference/procedures/list-procedures"
-  >
+
+  <Card title="Procedures" icon="list-check" href="/api-reference/procedures/list-procedures">
     Read the step-by-step procedures associated with any repair in your shop.
   </Card>
-  <Card
-    title="Quotes"
-    icon="file-invoice-dollar"
-    href="/api-reference/quotes/list-quotes"
-  >
+
+  <Card title="Quotes" icon="file-invoice-dollar" href="/api-reference/quotes/list-quotes">
     Access pricing, line items, and approval status for repair quotes.
   </Card>
-  <Card
-    title="Attachments & Communications"
-    icon="paperclip"
-    href="/api-reference/attachments/list-attachments"
-  >
+
+  <Card title="Attachments & Communications" icon="paperclip" href="/api-reference/attachments/list-attachments">
     Retrieve uploaded files and customer-facing messages tied to a repair.
   </Card>
 </CardGroup>

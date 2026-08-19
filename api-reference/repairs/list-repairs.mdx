@@ -6,23 +6,23 @@ description: "GET /api/v1/repairs — List all repair orders for your company. S
 
 Use this endpoint to retrieve a paginated list of repair orders for your company. You can filter by status, customer, date range, or search across device, serial, and customer details. Requires the `repairs:read` scope.
 
-```
-GET https://<your-queue-domain>/api/v1/repairs
+```text
+GET https://queue.pt/api/v1/repairs
 ```
 
 ## Required Headers
 
-| Header          | Value                              |
-| --------------- | ---------------------------------- |
-| `Authorization` | `Bearer queue_<your_token>`        |
+| Header | Value |
+| --- | --- |
+| `Authorization` | `Bearer queue_<your_token>` |
 
 ## Query Parameters
 
-<ParamField query="page" type="integer" default="1">
+<ParamField query="page" default="1" type="integer">
   Page number to retrieve. Accepted range: `1`–`10000`.
 </ParamField>
 
-<ParamField query="per_page" type="integer" default="50">
+<ParamField query="per_page" default="50" type="integer">
   Number of records to return per page. Accepted range: `1`–`200`. Also accepted as `limit`.
 </ParamField>
 
@@ -54,11 +54,11 @@ GET https://<your-queue-domain>/api/v1/repairs
   Full-text search query. Searches across `device`, `service`, `serial`, `description`, and customer `full_name`, `email`, and `phone`. Also accepted as `search`.
 </ParamField>
 
-<ParamField query="sort_by" type="string" default="created_at">
+<ParamField query="sort_by" default="created_at" type="string">
   Field to sort results by. Allowed values: `created_at`, `scheduled_at`, `repair_number`, `status`.
 </ParamField>
 
-<ParamField query="sort_dir" type="string" default="desc">
+<ParamField query="sort_dir" default="desc" type="string">
   Sort direction. Accepted values: `asc`, `desc`.
 </ParamField>
 
@@ -66,19 +66,19 @@ GET https://<your-queue-domain>/api/v1/repairs
 
 ```bash
 # First page of 10 repairs
-curl 'https://<your-queue-domain>/api/v1/repairs?page=1&per_page=10' \
+curl 'https://queue.pt/api/v1/repairs?page=1&per_page=10' \
   -H 'Authorization: Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxx'
 
 # Filter by status slug
-curl 'https://<your-queue-domain>/api/v1/repairs?status=em-reparacao' \
+curl 'https://queue.pt/api/v1/repairs?status=em-reparacao' \
   -H 'Authorization: Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxx'
 
 # Search by customer name or device
-curl 'https://<your-queue-domain>/api/v1/repairs?q=João' \
+curl 'https://queue.pt/api/v1/repairs?q=João' \
   -H 'Authorization: Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxx'
 
 # Repairs scheduled in September 2026
-curl 'https://<your-queue-domain>/api/v1/repairs?scheduled_after=2026-09-01T00:00:00Z&scheduled_before=2026-09-30T23:59:59Z' \
+curl 'https://queue.pt/api/v1/repairs?scheduled_after=2026-09-01T00:00:00Z&scheduled_before=2026-09-30T23:59:59Z' \
   -H 'Authorization: Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxx'
 ```
 

@@ -6,8 +6,8 @@ description: "Retrieve repair quotes for your company. Filter by repair ID or qu
 
 The quotes endpoint returns repair quotes created in your QUEUE dashboard — including the customer's acceptance timestamp when they've signed off on the quote. Requires the `quotes:read` scope.
 
-```
-GET https://<your-queue-domain>/api/v1/quotes
+```text
+GET https://queue.pt/api/v1/quotes
 ```
 
 ## Required Headers
@@ -15,18 +15,18 @@ GET https://<your-queue-domain>/api/v1/quotes
 <ParamField header="Authorization" type="string" required>
   Your API token in Bearer format.
 
-  ```
+  ```text
   Authorization: Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxx
   ```
 </ParamField>
 
 ## Query Parameters
 
-<ParamField query="page" type="integer" default="1">
+<ParamField query="page" default="1" type="integer">
   Page number for paginated results.
 </ParamField>
 
-<ParamField query="per_page" type="integer" default="50">
+<ParamField query="per_page" default="50" type="integer">
   Number of results per page. Maximum: `200`. Alias: `limit`.
 </ParamField>
 
@@ -46,11 +46,11 @@ GET https://<your-queue-domain>/api/v1/quotes
   Return only quotes created before this timestamp. Must be a valid ISO-8601 datetime string (e.g. `2026-08-31T23:59:59.999Z`).
 </ParamField>
 
-<ParamField query="sort_by" type="string" default="created_at">
+<ParamField query="sort_by" default="created_at" type="string">
   Field to sort results by. Allowed values: `created_at`, `quote_number`, `status`.
 </ParamField>
 
-<ParamField query="sort_dir" type="string" default="desc">
+<ParamField query="sort_dir" default="desc" type="string">
   Sort direction. Allowed values: `asc`, `desc`.
 </ParamField>
 
@@ -58,11 +58,11 @@ GET https://<your-queue-domain>/api/v1/quotes
 
 ```bash
 # All quotes for a specific repair
-curl 'https://your-domain.com/api/v1/quotes?repair_id=a1b2c3d4-e5f6-7890-abcd-ef1234567890' \
+curl 'https://queue.pt/api/v1/quotes?repair_id=a1b2c3d4-e5f6-7890-abcd-ef1234567890' \
   -H 'Authorization: Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxx'
 
 # Filter by quote status
-curl 'https://your-domain.com/api/v1/quotes?status=accepted' \
+curl 'https://queue.pt/api/v1/quotes?status=accepted' \
   -H 'Authorization: Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxx'
 ```
 

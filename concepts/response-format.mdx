@@ -39,7 +39,7 @@ When `ok` is `true`, `data` is the resource you requested or created. No `meta` 
 ```
 
 | Field | Description |
-|---|---|
+| --- | --- |
 | `page` | The current page number (1-based). |
 | `per_page` | The number of records returned per page. |
 | `total` | Total number of records matching the query across all pages. |
@@ -63,7 +63,7 @@ When a request fails (4xx or 5xx), `ok` is `false` and a top-level `error` objec
 ```
 
 | Field | Description |
-|---|---|
+| --- | --- |
 | `error.code` | A machine-readable string identifying the error type. Use this for conditional handling in your code. |
 | `error.message` | A human-readable summary of what went wrong. Suitable for logging, not for display to end-users. |
 | `error.details` | An array of field-level validation messages. **Only present when `error.code` is `validation_error`.** Each item includes a `field` path (e.g. `customer.full_name`) and a `message` describing the problem. |
@@ -71,7 +71,7 @@ When a request fails (4xx or 5xx), `ok` is `false` and a top-level `error` objec
 ## Error Codes
 
 | Code | HTTP Status | Meaning |
-|---|---|---|
+| --- | --- | --- |
 | `unauthorized` | 401 | Missing, invalid, or revoked API token. |
 | `forbidden` | 403 | Subscription doesn't allow API access, billing blocked, or token missing required scope. |
 | `bad_request` | 400 | Malformed JSON or invalid query parameters. |
@@ -84,14 +84,14 @@ Check `ok` before processing the response body. When `ok` is `false`, branch on 
 
 ```bash
 # Check the ok field before processing
-curl -s 'https://<your-queue-domain>/api/v1/repairs' \
+curl -s 'https://queue.pt/api/v1/repairs' \
   -H 'Authorization: Bearer queue_xxxx' | python3 -m json.tool
 ```
 
 A typical pattern in application code looks like:
 
 ```javascript
-const res = await fetch("https://<your-queue-domain>/api/v1/repairs", {
+const res = await fetch("https://queue.pt/api/v1/repairs", {
   headers: { Authorization: "Bearer queue_xxxx" },
 });
 const body = await res.json();

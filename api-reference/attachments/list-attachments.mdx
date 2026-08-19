@@ -6,8 +6,8 @@ description: "Retrieve file attachments linked to repairs and procedure steps. F
 
 The attachments endpoint returns file metadata for photos and documents linked to your repairs and procedure steps. Requires the `attachments:read` scope. Note that downloading file contents requires a separate signed-URL flow through your storage provider — the API returns metadata only.
 
-```
-GET https://<your-queue-domain>/api/v1/attachments
+```text
+GET https://queue.pt/api/v1/attachments
 ```
 
 ## Required Headers
@@ -20,11 +20,11 @@ GET https://<your-queue-domain>/api/v1/attachments
 
 ## Query Parameters
 
-<ParamField query="page" type="integer" default="1">
+<ParamField query="page" default="1" type="integer">
   Page number for paginated results.
 </ParamField>
 
-<ParamField query="per_page" type="integer" default="50">
+<ParamField query="per_page" default="50" type="integer">
   Number of results per page. Maximum value is `200`. Alias: `limit`
 </ParamField>
 
@@ -48,11 +48,11 @@ GET https://<your-queue-domain>/api/v1/attachments
   Case-insensitive search across `file_name` and `description` fields. Alias: `search`. Optional.
 </ParamField>
 
-<ParamField query="sort_by" type="string" default="created_at">
+<ParamField query="sort_by" default="created_at" type="string">
   Field to sort results by. Allowed values: `created_at`, `id`.
 </ParamField>
 
-<ParamField query="sort_dir" type="string" default="desc">
+<ParamField query="sort_dir" default="desc" type="string">
   Sort direction. Allowed values: `asc`, `desc`.
 </ParamField>
 
@@ -62,15 +62,15 @@ GET https://<your-queue-domain>/api/v1/attachments
 
 ```bash
 # All attachments for a repair
-curl 'https://your-domain.com/api/v1/attachments?repair_id=a1b2c3d4-e5f6-7890-abcd-ef1234567890' \
+curl 'https://queue.pt/api/v1/attachments?repair_id=a1b2c3d4-e5f6-7890-abcd-ef1234567890' \
   -H 'Authorization: Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxx'
 
 # Only procedure-step attachments
-curl 'https://your-domain.com/api/v1/attachments?procedure_id=b2c3d4e5-f6a7-8901-bcde-f12345678901' \
+curl 'https://queue.pt/api/v1/attachments?procedure_id=b2c3d4e5-f6a7-8901-bcde-f12345678901' \
   -H 'Authorization: Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxx'
 
 # Search by filename
-curl 'https://your-domain.com/api/v1/attachments?q=before-repair' \
+curl 'https://queue.pt/api/v1/attachments?q=before-repair' \
   -H 'Authorization: Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxx'
 ```
 

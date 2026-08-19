@@ -6,16 +6,16 @@ description: "Create a new repair order in QUEUE via REST API. Supply an existin
 
 Use this endpoint to create a new repair order in QUEUE. You can reference an existing customer by ID or supply inline customer data — QUEUE will match or create the customer automatically. Requires the `repairs:write` scope.
 
-```
-POST https://<your-queue-domain>/api/v1/repairs
+```text
+POST https://queue.pt/api/v1/repairs
 ```
 
 ## Required Headers
 
-| Header          | Value                              |
-| --------------- | ---------------------------------- |
-| `Content-Type`  | `application/json`                 |
-| `Authorization` | `Bearer queue_<your_token>`        |
+| Header | Value |
+| --- | --- |
+| `Content-Type` | `application/json` |
+| `Authorization` | `Bearer queue_<your_token>` |
 
 ## Request Body
 
@@ -105,7 +105,7 @@ POST https://<your-queue-domain>/api/v1/repairs
 ## Example Request
 
 ```bash
-curl -X POST 'https://<your-queue-domain>/api/v1/repairs' \
+curl -X POST 'https://queue.pt/api/v1/repairs' \
   -H 'Content-Type: application/json' \
   -H 'Authorization: Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxx' \
   -d '{
@@ -221,9 +221,9 @@ curl -X POST 'https://<your-queue-domain>/api/v1/repairs' \
 
 ## Error Responses
 
-| HTTP  | Code               | When it happens                                                                                  |
-| ----- | ------------------ | ------------------------------------------------------------------------------------------------ |
-| `400` | `bad_request`      | Request body is not valid JSON.                                                                  |
-| `401` | `unauthorized`     | Token is missing, has a bad format, is unknown, or has been revoked.                             |
-| `403` | `forbidden`        | Subscription has lost API access, billing is blocked, or the token is missing `repairs:write` scope. |
-| `422` | `validation_error` | Missing required fields (`customer` + `device` or `service`). Per-field details in `error.details`. |
+| HTTP | Code | When it happens |
+| --- | --- | --- |
+| `400` | `bad_request` | Request body is not valid JSON. |
+| `401` | `unauthorized` | Token is missing, has a bad format, is unknown, or has been revoked. |
+| `403` | `forbidden` | Subscription has lost API access, billing is blocked, or the token is missing `repairs:write` scope. |
+| `422` | `validation_error` | Missing required fields (`customer` \+ `device` or `service`). Per-field details in `error.details`. |

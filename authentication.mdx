@@ -31,14 +31,14 @@ QUEUE uses API tokens for authentication. Every request must include a Bearer to
 
 Include your token in the `Authorization` header of every API request using the `Bearer` scheme:
 
-```
+```text
 Authorization: Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
 **Example — curl**
 
 ```bash
-curl -X GET 'https://your-domain.com/api/v1/repairs' \
+curl -X GET 'https://queue.pt/api/v1/repairs' \
   -H 'Content-Type: application/json' \
   -H 'Authorization: Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 ```
@@ -50,7 +50,7 @@ All QUEUE API tokens are prefixed with `queue_` so they can be identified if acc
 Scopes determine which API endpoints a token is authorized to call. When you create a token in the dashboard, you can restrict it to only the scopes your integration actually needs. A token without a required scope will receive a `403 Forbidden` response when calling the corresponding endpoint.
 
 | Scope | Permitted endpoint |
-|---|---|
+| --- | --- |
 | `repairs:read` | `GET /repairs` |
 | `repairs:write` | `POST /repairs` |
 | `procedures:read` | `GET /procedures` |
@@ -77,6 +77,6 @@ To revoke a token, go to **Profile** (Perfil) → **API Keys** (Chaves de API / 
 ## Error Responses
 
 | HTTP status | Meaning |
-|---|---|
+| --- | --- |
 | `401 Unauthorized` | The `Authorization` header is missing, the token is malformed, or the token has been revoked. Check that you are including the header and that the token is still active. |
 | `403 Forbidden` | The token is valid but lacks the required scope for the endpoint, or your company's subscription does not include REST API access. Review the token's scopes or your plan. |

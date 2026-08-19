@@ -6,8 +6,8 @@ description: "Retrieve procedure log entries for your repairs. Filter by repair 
 
 The procedures endpoint returns the activity log entries for your repair orders — every action, note, and update recorded by technicians, including auto-generated entries created by the API. Requires the `procedures:read` scope.
 
-```
-GET https://<your-queue-domain>/api/v1/procedures
+```text
+GET https://queue.pt/api/v1/procedures
 ```
 
 ## Required Headers
@@ -15,18 +15,18 @@ GET https://<your-queue-domain>/api/v1/procedures
 <ParamField header="Authorization" type="string" required>
   Your API token in Bearer format.
 
-  ```
+  ```text
   Authorization: Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxx
   ```
 </ParamField>
 
 ## Query Parameters
 
-<ParamField query="page" type="integer" default="1">
+<ParamField query="page" default="1" type="integer">
   Page number for paginated results.
 </ParamField>
 
-<ParamField query="per_page" type="integer" default="50">
+<ParamField query="per_page" default="50" type="integer">
   Number of results per page. Maximum: `200`. Alias: `limit`.
 </ParamField>
 
@@ -46,11 +46,11 @@ GET https://<your-queue-domain>/api/v1/procedures
   Search within procedure description text. Alias: `search`.
 </ParamField>
 
-<ParamField query="sort_by" type="string" default="created_at">
+<ParamField query="sort_by" default="created_at" type="string">
   Field to sort results by. Allowed values: `created_at`, `id`.
 </ParamField>
 
-<ParamField query="sort_dir" type="string" default="desc">
+<ParamField query="sort_dir" default="desc" type="string">
   Sort direction. Allowed values: `asc`, `desc`.
 </ParamField>
 
@@ -62,7 +62,7 @@ GET https://<your-queue-domain>/api/v1/procedures
 
 ```bash
 # All procedures for a specific repair
-curl 'https://your-domain.com/api/v1/procedures?repair_id=a1b2c3d4-e5f6-7890-abcd-ef1234567890' \
+curl 'https://queue.pt/api/v1/procedures?repair_id=a1b2c3d4-e5f6-7890-abcd-ef1234567890' \
   -H 'Authorization: Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxx'
 
 # Search procedure descriptions
