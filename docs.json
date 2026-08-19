@@ -3,14 +3,17 @@
   "theme": "luma",
   "name": "QUEUE API",
   "colors": {
-    "primary": "#ef7025",
-    "light": "#eec9bc",
-    "dark": "#4fa1ab"
+    "primary": "#000000",
+    "light": "#c4c4c4",
+    "dark": "#434343"
   },
-  "favicon": "/favicon.svg",
+  "favicon": {
+    "light": "/images/icon.svg",
+    "dark": "/images/icon.svg"
+  },
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "light": "/images/icon-white.png",
+    "dark": "/images/icon.png"
   },
   "navbar": {
     "primary": {
