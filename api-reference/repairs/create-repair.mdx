@@ -1,7 +1,7 @@
 ---
-title: "POST /repairs — Create a New Repair Order in QUEUE"
-sidebarTitle: "POST /repairs"
-description: "POST /api/v1/repairs — Create a new repair order. Accepts customer info, device, service details, and status. Returns the created repair with its ID and repair number."
+title: "Create a Repair Order — POST /repairs | QUEUE"
+sidebarTitle: "Create Repair"
+description: "Create a new repair order in QUEUE via REST API. Supply an existing customer ID or inline customer data. Returns the created repair with its repair number."
 ---
 
 Use this endpoint to create a new repair order in QUEUE. You can reference an existing customer by ID or supply inline customer data — QUEUE will match or create the customer automatically. Requires the `repairs:write` scope.
@@ -82,11 +82,11 @@ POST https://<your-queue-domain>/api/v1/repairs
 </ParamField>
 
 <ParamField body="status" type="string" required={false}>
-  Repair status identified by UUID, slug, or display name. Defaults to your company's configured default status if omitted.
+  Repair status identified by UUID or slug. Defaults to your company's configured default status if omitted.
 </ParamField>
 
 <ParamField body="warranty_status" type="string" required={false}>
-  Warranty status identified by UUID, slug, or display name.
+  Warranty status identified by UUID or slug.
 </ParamField>
 
 <ParamField body="scheduled_at" type="ISO-8601" required={false}>
@@ -105,7 +105,7 @@ POST https://<your-queue-domain>/api/v1/repairs
 ## Example Request
 
 ```bash
-curl -X POST 'https://your-domain.com/api/v1/repairs' \
+curl -X POST 'https://<your-queue-domain>/api/v1/repairs' \
   -H 'Content-Type: application/json' \
   -H 'Authorization: Bearer queue_xxxxxxxxxxxxxxxxxxxxxxxx' \
   -d '{

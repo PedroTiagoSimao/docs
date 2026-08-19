@@ -1,7 +1,7 @@
 ---
-title: "QUEUE API Rate Limits and Request Throttling"
+title: "QUEUE API Rate Limits, Throttling, and Retry Handling"
 sidebarTitle: "Rate Limits"
-description: "The QUEUE API allows 60 requests per minute per token. Learn how rate limits work, how to detect them, and how to handle 429 responses."
+description: "The QUEUE API enforces 60 requests per minute per token. Learn how rate limits work, how to detect HTTP 429 responses, and how to retry safely."
 ---
 
 The QUEUE API enforces rate limits to ensure fair usage and platform stability. Each API token is independently limited to **60 requests per minute**. Requests that exceed this limit are rejected until the window resets.

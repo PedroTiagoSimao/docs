@@ -17,7 +17,7 @@ Control how many records are returned per page and which page you're on using th
 
 ```bash
 # Fetch the second page of repairs, 25 records at a time
-curl 'https://your-domain.com/api/v1/repairs?page=2&per_page=25' \
+curl 'https://<your-queue-domain>/api/v1/repairs?page=2&per_page=25' \
   -H 'Authorization: Bearer queue_xxxx'
 ```
 
@@ -26,17 +26,19 @@ To iterate through all pages, use `meta.total_pages` from the first response to 
 ```javascript
 let page = 1;
 let allRepairs = [];
+let totalPages = 1;
 
 do {
   const res = await fetch(
-    `https://your-domain.com/api/v1/repairs?page=${page}&per_page=200`,
+    `https://<your-queue-domain>/api/v1/repairs?page=${page}&per_page=200`,
     { headers: { Authorization: "Bearer queue_xxxx" } }
   );
   const body = await res.json();
 
   allRepairs = allRepairs.concat(body.data);
+  totalPages = body.meta.total_pages;
   page++;
-} while (page <= body.meta.total_pages); // stop when we've fetched every page
+} while (page <= totalPages); // stop when we've fetched every page
 ```
 
 ## Filtering
@@ -48,7 +50,7 @@ Narrow list results with these filter parameters. Multiple filters can be combin
 | `repair_id` | uuid | procedures, quotes, attachments, communications | Returns only records belonging to the specified repair. |
 | `customer_id` | uuid | repairs | Returns only repairs belonging to the specified customer. |
 | `procedure_id` | uuid | attachments | Returns only attachments linked to the specified procedure. |
-| `status` | uuid / slug / name | repairs, quotes | Matches against your company's statuses table. Accepts the status UUID, its slug, or its display name. |
+| `status` | string | repairs, quotes | Matches against your company's configured statuses. Accepts the status UUID, slug, or display name. |
 | `created_after` | ISO-8601 | all | Returns records with `created_at` greater than or equal to the given timestamp. |
 | `created_before` | ISO-8601 | all | Returns records with `created_at` less than or equal to the given timestamp. |
 | `scheduled_after` | ISO-8601 | repairs | Returns repairs with `scheduled_at` greater than or equal to the given timestamp. |
@@ -94,7 +96,7 @@ Control the order of results with these parameters:
 **Filter repairs by date range:**
 
 ```bash
-curl 'https://your-domain.com/api/v1/repairs?created_after=2024-01-01T00:00:00Z&created_before=2024-03-31T23:59:59Z' \
+curl 'https://<your-queue-domain>/api/v1/repairs?created_after=2024-01-01T00:00:00Z&created_before=2024-03-31T23:59:59Z' \
   -H 'Authorization: Bearer queue_xxxx'
 ```
 
@@ -102,27 +104,27 @@ curl 'https://your-domain.com/api/v1/repairs?created_after=2024-01-01T00:00:00Z&
 
 ```bash
 # Using a status slug
-curl 'https://your-domain.com/api/v1/repairs?status=in-progress' \
+curl 'https://<your-queue-domain>/api/v1/repairs?status=in-progress' \
   -H 'Authorization: Bearer queue_xxxx'
 ```
 
 **Search procedures by description:**
 
 ```bash
-curl 'https://your-domain.com/api/v1/procedures?q=screen+replacement&repair_id=rep_abc123' \
+curl 'https://<your-queue-domain>/api/v1/procedures?q=screen+replacement&repair_id=rep_abc123' \
   -H 'Authorization: Bearer queue_xxxx'
 ```
 
 **Combined pagination and sorting — latest repairs, 100 per page:**
 
 ```bash
-curl 'https://your-domain.com/api/v1/repairs?page=1&per_page=100&sort_by=created_at&sort_dir=desc' \
+curl 'https://<your-queue-domain>/api/v1/repairs?page=1&per_page=100&sort_by=created_at&sort_dir=desc' \
   -H 'Authorization: Bearer queue_xxxx'
 ```
 
 **Fetch all communications for a specific repair:**
 
 ```bash
-curl 'https://your-domain.com/api/v1/communications?repair_id=rep_abc123&sort_by=created_at&sort_dir=asc' \
+curl 'https://<your-queue-domain>/api/v1/communications?repair_id=rep_abc123&sort_by=created_at&sort_dir=asc' \
   -H 'Authorization: Bearer queue_xxxx'
 ```

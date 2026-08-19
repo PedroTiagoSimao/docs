@@ -1,7 +1,7 @@
 ---
 title: "GET /procedures — List Repair Procedure Log Entries"
-sidebarTitle: "GET /procedures"
-description: "GET /api/v1/procedures — List procedure log entries across your repairs. Filter by repair ID, date range, or search by description. Requires procedures:read scope."
+sidebarTitle: "List Procedures"
+description: "Retrieve procedure log entries for your repairs. Filter by repair ID, date range, or search by description text. Requires procedures:read scope."
 ---
 
 The procedures endpoint returns the activity log entries for your repair orders — every action, note, and update recorded by technicians, including auto-generated entries created by the API. Requires the `procedures:read` scope.
@@ -222,5 +222,5 @@ curl 'https://your-domain.com/api/v1/procedures?q=screen+replaced' \
 ```
 
 <Note>
-  `created_by` is `null` for auto-generated procedure entries (e.g. when a repair is created via the API, or when a customer accepts a quote). This is expected behavior.
+  `created_by` is `null` for auto-generated procedure entries — for example, when a repair is created via the API or when a customer accepts a quote. This is expected behavior.
 </Note>

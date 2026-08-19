@@ -1,7 +1,7 @@
 ---
-title: "GET /attachments — List Files Attached to Repairs"
-sidebarTitle: "GET /attachments"
-description: "GET /api/v1/attachments — List file attachments linked to repairs or procedure steps. Filter by repair ID, procedure ID, or search by filename. Requires attachments:read scope."
+title: "List File Attachments for Repairs — QUEUE REST API"
+sidebarTitle: "List Attachments"
+description: "Retrieve file attachments linked to repairs and procedure steps. Filter by repair, procedure, filename, or date range. Requires attachments:read scope."
 ---
 
 The attachments endpoint returns file metadata for photos and documents linked to your repairs and procedure steps. Requires the `attachments:read` scope. Note that downloading file contents requires a separate signed-URL flow through your storage provider — the API returns metadata only.
@@ -33,7 +33,7 @@ GET https://<your-queue-domain>/api/v1/attachments
 </ParamField>
 
 <ParamField query="procedure_id" type="uuid">
-  Filter to only return attachments linked to a specific procedure step. When omitted (null), the response includes both repair-level and procedure-level attachments. Optional.
+  Filter to only return attachments linked to a specific procedure step. When omitted, the response includes both repair-level and procedure-level attachments. Optional.
 </ParamField>
 
 <ParamField query="created_after" type="string">

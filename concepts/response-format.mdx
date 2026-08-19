@@ -1,14 +1,14 @@
 ---
-title: "QUEUE API Response Format and Error Codes"
+title: "QUEUE API Response Format, Envelopes, and Error Codes"
 sidebarTitle: "Response Format"
-description: "Every QUEUE API response uses a consistent JSON envelope with ok, data, and meta fields. Learn how to read successes, lists, and errors."
+description: "Every QUEUE API response uses a consistent JSON envelope with ok, data, and meta fields. Learn how to read successes, lists, and errors reliably."
 ---
 
-All QUEUE API responses share a consistent JSON envelope. The top-level `ok` boolean tells you immediately whether the request succeeded, and the structure of `data` and `meta` are predictable across every endpoint.
+All QUEUE API responses share a consistent JSON envelope. The top-level `ok` boolean tells you immediately whether the request succeeded, and the structure of `data` and `meta` are predictable across every endpoint. Understanding this envelope is the foundation for writing robust integrations.
 
 ## Success Response
 
-Single-resource endpoints (e.g. `GET /repairs/:id`, `POST /repairs`, `PATCH /repairs/:id`) return a `data` object containing the resource:
+Single-resource endpoints (e.g. `POST /repairs`) return a `data` object containing the resource:
 
 ```json
 {
@@ -17,7 +17,7 @@ Single-resource endpoints (e.g. `GET /repairs/:id`, `POST /repairs`, `PATCH /rep
 }
 ```
 
-When `ok` is `true`, `data` is the resource you requested or mutated. No `meta` field is present on single-resource responses.
+When `ok` is `true`, `data` is the resource you requested or created. No `meta` field is present on single-resource responses.
 
 ## List Response
 
@@ -84,14 +84,14 @@ Check `ok` before processing the response body. When `ok` is `false`, branch on 
 
 ```bash
 # Check the ok field before processing
-curl -s 'https://your-domain.com/api/v1/repairs' \
+curl -s 'https://<your-queue-domain>/api/v1/repairs' \
   -H 'Authorization: Bearer queue_xxxx' | python3 -m json.tool
 ```
 
 A typical pattern in application code looks like:
 
 ```javascript
-const res = await fetch("https://your-domain.com/api/v1/repairs", {
+const res = await fetch("https://<your-queue-domain>/api/v1/repairs", {
   headers: { Authorization: "Bearer queue_xxxx" },
 });
 const body = await res.json();

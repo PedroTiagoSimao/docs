@@ -1,7 +1,7 @@
 ---
 title: "Authenticate with the QUEUE API Using Bearer Tokens"
 sidebarTitle: "Authentication"
-description: "Learn how to generate a QUEUE API token, authenticate requests with Bearer auth, manage scopes, and revoke tokens when needed."
+description: "Learn how to generate a QUEUE API token, authenticate every request with Bearer auth, restrict token scopes, and revoke tokens when needed."
 ---
 
 QUEUE uses API tokens for authentication. Every request must include a Bearer token in the `Authorization` header. Tokens are **company-scoped** — they can only access data belonging to the company that generated them — and **scope-restricted**, meaning each token controls exactly which endpoints the bearer is permitted to call. There are no user-level tokens; tokens belong to your company account.
@@ -47,7 +47,7 @@ All QUEUE API tokens are prefixed with `queue_` so they can be identified if acc
 
 ## Token Scopes
 
-Scopes determine which API endpoints a token is authorized to call. When you create a token, you can restrict it to only the scopes your integration actually needs.
+Scopes determine which API endpoints a token is authorized to call. When you create a token in the dashboard, you can restrict it to only the scopes your integration actually needs. A token without a required scope will receive a `403 Forbidden` response when calling the corresponding endpoint.
 
 | Scope | Permitted endpoint |
 |---|---|
