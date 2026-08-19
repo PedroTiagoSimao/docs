@@ -71,7 +71,12 @@
           {
             "group": "Attachments & Communications",
             "pages": [
-              "api-reference/attachments/list-attachments",
+              "api-reference/attachments/list-attachments"
+            ]
+          },
+          {
+            "group": "Communications",
+            "pages": [
               "api-reference/communications/list-communications"
             ]
           }
