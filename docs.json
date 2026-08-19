@@ -13,7 +13,8 @@
   },
   "logo": {
     "light": "/images/logo-white.svg",
-    "dark": "/images/logo.svg"
+    "dark": "/images/logo.svg",
+    "href": "https://app.queue.pt"
   },
   "navbar": {
     "primary": {
