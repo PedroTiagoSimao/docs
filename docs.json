@@ -12,8 +12,8 @@
     "dark": "/images/icon.svg"
   },
   "logo": {
-    "light": "/images/icon-white.png",
-    "dark": "/images/icon.png"
+    "light": "/images/logo-white.svg",
+    "dark": "/images/logo.svg"
   },
   "navbar": {
     "primary": {
